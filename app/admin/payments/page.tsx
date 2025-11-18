@@ -21,7 +21,7 @@ export default function PaymentsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
 
-  const { payments, loading, error, pagination } = usePayments({ 
+  const { payments, loading, error, pagination, refetch } = usePayments({ 
     search: searchTerm,
     page: currentPage,
     limit: itemsPerPage,
@@ -124,9 +124,17 @@ export default function PaymentsPage() {
     }).format(amount)
   }
 
-  const handleRefund = (paymentId: number) => {
-    console.log("Processing refund for payment:", paymentId)
-    // Handle refund logic here
+  const handleRefund = async (paymentId: number) => {
+    try {
+      const { api } = await import("@/lib/api");
+      const res = await api.payments.refund(paymentId);
+      if ((res as any).error) throw new Error((res as any).error);
+      await refetch();
+      alert("Refund processed successfully");
+    } catch (e) {
+      console.error(e);
+      alert("Failed to process refund");
+    }
   }
 
   // Calculate stats from actual data
@@ -533,7 +541,27 @@ export default function PaymentsPage() {
                     Process Refund
                   </Button>
                 )}
-                <Button>
+                <Button
+                  onClick={async () => {
+                    try {
+                      const { api } = await import("@/lib/api");
+                      const resp = await api.payments.getReceipt(selectedPayment.id);
+                      if ((resp as any).error || !resp.data?.receiptHtml) throw new Error("No receipt");
+                      const blob = new Blob([resp.data.receiptHtml], { type: 'text/html' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `receipt-${selectedPayment.id}.html`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                    } catch (e) {
+                      console.error(e);
+                      alert("Failed to export receipt");
+                    }
+                  }}
+                >
                   <Download className="mr-2 h-4 w-4" />
                   Export Receipt
                 </Button>
