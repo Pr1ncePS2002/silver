@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Heart } from 'lucide-react'
-import { useWishlist } from '@/hooks/useWishlist'
-import { useAuth } from '@/hooks/useAuth'
+import { useUnifiedWishlist } from '@/hooks/useUnifiedWishlist'
 
 interface WishlistButtonProps {
   productId: string
@@ -22,20 +21,12 @@ export default function WishlistButton({
 }: WishlistButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
-  const { isAuthenticated } = useAuth()
-  const { isInWishlist, toggleWishlistItem, checkWishlistStatus } = useWishlist()
+  const { isInWishlist, toggleWishlistItem, checkWishlistStatus } = useUnifiedWishlist()
 
   // Check wishlist status on mount
   useEffect(() => {
-    if (isAuthenticated) {
-      checkWishlistStatus(productId)
-    }
-  }, [productId, checkWishlistStatus, isAuthenticated])
-
-  // Don't render for non-authenticated users
-  if (!isAuthenticated) {
-    return null
-  }
+    checkWishlistStatus(productId)
+  }, [productId, checkWishlistStatus])
 
   const handleToggle = async () => {
     setIsLoading(true)

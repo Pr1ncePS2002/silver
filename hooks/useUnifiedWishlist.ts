@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useAuth } from './useAuth'
 import { useWishlist } from './useWishlist'
 import { useGuestWishlist } from './useGuestWishlist'
+import { api } from '@/lib/api'
 
 interface WishlistItem {
   id: number | string
@@ -37,11 +38,21 @@ export function useUnifiedWishlist() {
     const mergeGuestWishlist = async () => {
       if (isAuthenticated && !hasMerged && guestWishlist.items.length > 0) {
         try {
-          // Add each guest wishlist item to authenticated wishlist
+          // Add all guest wishlist items to authenticated wishlist
           for (const item of guestWishlist.items) {
-            await authenticatedWishlist.toggleWishlistItem(item.productId)
+            try {
+              await api.wishlist.addItem(item.productId)
+            } catch (error) {
+              console.error(`Error adding product ${item.productId} to wishlist:`, error)
+            }
           }
+          
+          // Clear guest wishlist after merging
           guestWishlist.clearWishlist()
+          
+          // Refresh authenticated wishlist
+          await authenticatedWishlist.fetchWishlist()
+          
           setHasMerged(true)
         } catch (error) {
           console.error('Error merging guest wishlist:', error)
@@ -61,14 +72,26 @@ export function useUnifiedWishlist() {
     }
   }, [isAuthenticated])
 
-  // Get current wishlist items
-  const getCurrentItems = useCallback((): WishlistItem[] => {
+  // Get current wishlist (authenticated or guest) - memoized to trigger re-renders
+  const currentWishlist = useMemo(() => {
     if (isAuthenticated) {
-      return authenticatedWishlist.items
+      const authItems = authenticatedWishlist.items || []
+      return {
+        items: Array.isArray(authItems) ? authItems : [],
+        isLoading: authenticatedWishlist.isLoading,
+        error: authenticatedWishlist.error,
+        count: authenticatedWishlist.count || 0,
+      }
     } else {
-      return guestWishlist.items
+      const guestItems = guestWishlist.items || []
+      return {
+        items: Array.isArray(guestItems) ? guestItems : [],
+        isLoading: guestWishlist.loading,
+        error: null,
+        count: guestWishlist.count || 0,
+      }
     }
-  }, [isAuthenticated, authenticatedWishlist.items, guestWishlist.items])
+  }, [isAuthenticated, authenticatedWishlist.items, authenticatedWishlist.isLoading, authenticatedWishlist.error, authenticatedWishlist.count, guestWishlist.items, guestWishlist.loading, guestWishlist.count])
 
   // Toggle wishlist item (works for both guest and authenticated)
   const toggleWishlistItem = useCallback(async (productId: string) => {
@@ -79,21 +102,23 @@ export function useUnifiedWishlist() {
     }
   }, [isAuthenticated, authenticatedWishlist, guestWishlist])
 
-  // Remove from wishlist (works for both guest and authenticated)
+  // Remove item from wishlist
   const removeFromWishlist = useCallback(async (productId: string) => {
     if (isAuthenticated) {
       return await authenticatedWishlist.removeFromWishlist(productId)
     } else {
       guestWishlist.removeFromWishlist(productId)
+      return true
     }
   }, [isAuthenticated, authenticatedWishlist, guestWishlist])
 
-  // Clear wishlist (works for both guest and authenticated)
+  // Clear wishlist
   const clearWishlist = useCallback(async () => {
     if (isAuthenticated) {
       return await authenticatedWishlist.clearWishlist()
     } else {
       guestWishlist.clearWishlist()
+      return true
     }
   }, [isAuthenticated, authenticatedWishlist, guestWishlist])
 
@@ -106,28 +131,30 @@ export function useUnifiedWishlist() {
     }
   }, [isAuthenticated, authenticatedWishlist, guestWishlist])
 
-  // Get wishlist count
-  const getCount = useCallback(() => {
+  // Check wishlist status (for authenticated users)
+  const checkWishlistStatus = useCallback(async (productId: string) => {
     if (isAuthenticated) {
-      return authenticatedWishlist.count
+      return await authenticatedWishlist.checkWishlistStatus(productId)
     } else {
-      return guestWishlist.count
+      // For guest users, check local state (synchronous)
+      const isInWishlist = guestWishlist.isInWishlist(productId)
+      return Promise.resolve(isInWishlist)
     }
-  }, [isAuthenticated, authenticatedWishlist.count, guestWishlist.count])
-
-  const currentItems = getCurrentItems()
+  }, [isAuthenticated, authenticatedWishlist, guestWishlist])
 
   return {
-    items: currentItems,
-    loading: isAuthenticated ? authenticatedWishlist.isLoading : guestWishlist.loading,
-    error: isAuthenticated ? authenticatedWishlist.error : null,
-    count: getCount(),
+    // State
+    items: currentWishlist.items,
+    isLoading: currentWishlist.isLoading,
+    error: currentWishlist.error,
+    count: currentWishlist.count,
+    
+    // Actions
     toggleWishlistItem,
     removeFromWishlist,
     clearWishlist,
+    checkWishlistStatus,
     isInWishlist,
-    fetchWishlist: isAuthenticated ? authenticatedWishlist.fetchWishlist : () => {},
-    isAuthenticated,
-    hasMerged
+    fetchWishlist: authenticatedWishlist.fetchWishlist,
   }
 }

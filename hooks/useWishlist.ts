@@ -56,8 +56,11 @@ export function useWishlist() {
         throw new Error(response.error)
       }
 
+      // API returns { items: [...], totalCount: ... }
+      const items = response.data?.items || []
+      
       setState({
-        items: response.data || [],
+        items: Array.isArray(items) ? items : [],
         isLoading: false,
         error: null,
       })
@@ -73,6 +76,7 @@ export function useWishlist() {
   // Check if product is in wishlist
   const checkWishlistStatus = useCallback(async (productId: string) => {
     if (!isAuthenticated) {
+      // For guest users, this will be handled by useUnifiedWishlist
       setWishlistStatus(prev => ({ ...prev, [productId]: false }))
       return false
     }
@@ -96,8 +100,7 @@ export function useWishlist() {
   // Toggle wishlist item
   const toggleWishlistItem = useCallback(async (productId: string) => {
     if (!isAuthenticated) {
-      // Redirect to login
-      window.location.href = '/login'
+      // For guest users, this will be handled by useUnifiedWishlist
       return false
     }
 

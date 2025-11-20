@@ -5,7 +5,7 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingBag, Menu, X, Search, Heart } from "lucide-react";
 import { useUnifiedCart } from "@/hooks/useUnifiedCart";
-import { useWishlist } from "@/hooks/useWishlist";
+import { useUnifiedWishlist } from "@/hooks/useUnifiedWishlist";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
@@ -15,7 +15,7 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { cart } = useUnifiedCart();
   const { isAuthenticated } = useAuth();
-  const { count: wishlistCount } = useWishlist();
+  const { count: wishlistCount } = useUnifiedWishlist();
 
   // Debug: Log cart state changes
   console.log('Header render - cart items:', cart?.items?.length || 0);
@@ -100,20 +100,18 @@ export default function Header() {
               <Search className="w-5 h-5" />
             </button>
 
-            {isAuthenticated && (
-              <Link
-                href="/wishlist"
-                className="relative p-2 text-gray-700 hover:text-purple-600 transition-colors hover:bg-purple-50 rounded-full"
-                title="Wishlist"
-              >
-                <Heart className="w-5 h-5" />
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce-gentle light-shadow">
-                    {wishlistCount}
-                  </span>
-                )}
-              </Link>
-            )}
+            <Link
+              href="/wishlist"
+              className="relative p-2 text-gray-700 hover:text-purple-600 transition-colors hover:bg-purple-50 rounded-full"
+              title="Wishlist"
+            >
+              <Heart className="w-5 h-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce-gentle light-shadow">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
 
             <Link
               href="/cart"

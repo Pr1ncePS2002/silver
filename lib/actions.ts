@@ -239,6 +239,21 @@ export async function createOrderAction(orderData: any) {
         where: { userId },
       })
 
+      // Create payment record for COD orders
+      if (orderData.paymentMethod === 'cod') {
+        await tx.payment.create({
+          data: {
+            orderId: newOrder.id,
+            paymentMethod: 'COD',
+            amount: totalAmount,
+            currency: 'INR',
+            status: 'PENDING',
+            gateway: null,
+          },
+        })
+        // For COD, order status should remain PENDING until payment is received
+      }
+
       return newOrder
     })
 

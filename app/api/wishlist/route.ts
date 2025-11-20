@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -22,8 +23,7 @@ export async function GET(request: NextRequest) {
           include: {
             category: true,
             images: {
-              where: { isPrimary: true },
-              take: 1,
+              orderBy: { sortOrder: "asc" },
             },
             _count: {
               select: {
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
     
-    const transformedItems = wishlistItems.map(item => ({
+    const transformedItems = wishlistItems.map((item: any) => ({
       id: item.id,
       product: {
         id: item.product.id,
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         description: item.product.description,
         shortDescription: item.product.shortDescription,
         price: parseFloat(item.product.price.toString()),
-        image: item.product.images[0]?.url || "/placeholder.jpg",
+        images: item.product.images || [],
         reviewCount: item.product._count.reviews,
         stock: item.product.stock,
         category: {
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json(

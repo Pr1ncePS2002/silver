@@ -199,6 +199,12 @@ class ApiClient {
       method: 'POST',
     });
   }
+  
+  async toggleWishlist(productId: string) {
+    return this.request<any>(`/api/wishlist/${productId}`, {
+      method: 'POST',
+    });
+  }
 
   async removeFromWishlist(productId: string) {
     return this.request<any>(`/api/wishlist/${productId}`, {
