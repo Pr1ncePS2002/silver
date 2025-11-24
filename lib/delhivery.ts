@@ -301,7 +301,25 @@ export class DelhiveryService {
       return response.data
     } catch (error: any) {
       logger.error('delhivery.api.error', { endpoint, method, message: error.message, data: error.response?.data })
-      throw new Error(`Delhivery API Error: ${error.response?.data?.error || error.message}`)
+      
+      // Extract meaningful error details from response
+      const apiData = error.response?.data
+      let errorMsg = error.message
+      
+      if (apiData) {
+        // Handle wallet balance error specifically
+        if (apiData.prepaid && typeof apiData.prepaid === 'string') {
+          errorMsg = apiData.prepaid
+        } else if (apiData.error) {
+          errorMsg = typeof apiData.error === 'string' ? apiData.error : JSON.stringify(apiData.error)
+        } else if (apiData.message) {
+          errorMsg = apiData.message
+        } else if (typeof apiData === 'string') {
+          errorMsg = apiData
+        }
+      }
+      
+      throw new Error(`Delhivery API Error: ${errorMsg}`)
     }
   }
 
