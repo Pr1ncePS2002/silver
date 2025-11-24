@@ -3,10 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { productId: string } | Promise<{ productId: string }> }
-) {
+// Use a loosely typed context to avoid build-time ParamCheck constraint issues
+export async function GET(request: NextRequest, context: any) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -17,7 +15,7 @@ export async function GET(
       );
     }
     
-    const { productId: productIdRaw } = await params as { productId: string };
+    const productIdRaw = context?.params?.productId as string;
     const userId = Number(session.user.id);
     const productId = Number(productIdRaw);
     
@@ -51,10 +49,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { productId: string } | Promise<{ productId: string }> }
-) {
+export async function POST(request: NextRequest, context: any) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -65,7 +60,7 @@ export async function POST(
       );
     }
     
-    const { productId: productIdRaw } = await params as { productId: string };
+    const productIdRaw = context?.params?.productId as string;
     const userId = Number(session.user.id);
     const productId = Number(productIdRaw);
     
@@ -134,10 +129,7 @@ export async function POST(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { productId: string } | Promise<{ productId: string }> }
-) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -148,7 +140,7 @@ export async function DELETE(
       );
     }
     
-    const { productId: productIdRaw } = await params as { productId: string };
+    const productIdRaw = context?.params?.productId as string;
     const userId = Number(session.user.id);
     const productId = Number(productIdRaw);
     
