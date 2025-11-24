@@ -3,8 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-// Use a loosely typed context to avoid build-time ParamCheck constraint issues
-export async function GET(request: NextRequest, context: any) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { productId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -15,7 +17,7 @@ export async function GET(request: NextRequest, context: any) {
       );
     }
     
-    const productIdRaw = context?.params?.productId as string;
+    const productIdRaw = params.productId;
     const userId = Number(session.user.id);
     const productId = Number(productIdRaw);
     
@@ -49,7 +51,10 @@ export async function GET(request: NextRequest, context: any) {
   }
 }
 
-export async function POST(request: NextRequest, context: any) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { productId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -60,7 +65,7 @@ export async function POST(request: NextRequest, context: any) {
       );
     }
     
-    const productIdRaw = context?.params?.productId as string;
+    const productIdRaw = params.productId;
     const userId = Number(session.user.id);
     const productId = Number(productIdRaw);
     
@@ -129,7 +134,10 @@ export async function POST(request: NextRequest, context: any) {
   }
 }
 
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { productId: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -140,7 +148,7 @@ export async function DELETE(request: NextRequest, context: any) {
       );
     }
     
-    const productIdRaw = context?.params?.productId as string;
+    const productIdRaw = params.productId;
     const userId = Number(session.user.id);
     const productId = Number(productIdRaw);
     
