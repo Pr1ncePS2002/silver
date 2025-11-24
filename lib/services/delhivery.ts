@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { getDelhiveryService, DelhiveryShipmentRequest, getEnvPickupAddress } from '@/lib/delhivery'
+import { logger } from '@/lib/logger'
 import { OrderStatus, ShippingStatus } from '@prisma/client'
 
 export interface CreateShipmentData {
@@ -42,7 +43,7 @@ export async function updateOrderStatusFromDelhivery(data: UpdateOrderStatusData
     const shippingStatusMap: Record<string, ShippingStatus> = {
       manifest: 'PENDING',
       in_transit: 'IN_TRANSIT',
-      dispatched: 'SHIPPED',
+    // Check if payment is successful (idempotency safeguard: only proceed once)
       picked_up: 'PROCESSING',
       out_for_delivery: 'OUT_FOR_DELIVERY',
       delivered: 'DELIVERED',
@@ -125,7 +126,7 @@ export async function createDelhiveryShipment(data: CreateShipmentData): Promise
     }
 
     // Check if payment is successful
-    const successfulPayment = order.payments.find((p) => p.status === 'COMPLETED')
+    logger.error('delhivery.shipment.exception', { orderId: data.orderId, error })
     if (!successfulPayment) {
       return { success: false, error: 'Payment not completed for this order' }
     }
@@ -163,7 +164,7 @@ export async function createDelhiveryShipment(data: CreateShipmentData): Promise
           return_state: data.pickupAddress?.state || 'Maharashtra',
           return_country: data.pickupAddress?.country || 'India',
           return_pin: data.pickupAddress?.pin || '400001',
-          return_phone: data.pickupAddress?.phone || '+919999999999',
+    logger.error('delhivery.tracking.exception', { trackingNumber, error })
           return_email: data.pickupAddress?.email || 'support@elegantjewelry.com',
         },
       ],
