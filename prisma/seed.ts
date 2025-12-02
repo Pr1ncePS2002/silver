@@ -9,39 +9,111 @@ async function main() {
   // Create categories
   const categories = await Promise.all([
     prisma.category.upsert({
-      where: { name: 'Rings' },
+      where: { name: 'Mens ring' },
       update: {},
       create: {
-        name: 'Rings',
-        description: 'Elegant rings for every occasion',
-        imageUrl: '/images/categories/rings.jpg',
+        name: 'Mens ring',
+        description: 'Elegant rings designed for men',
+        imageUrl: '/images/categories/mens-rings.jpg',
       },
     }),
     prisma.category.upsert({
-      where: { name: 'Necklaces' },
+      where: { name: 'Ladies ring' },
       update: {},
       create: {
-        name: 'Necklaces',
-        description: 'Beautiful necklaces and pendants',
-        imageUrl: '/images/categories/necklaces.jpg',
+        name: 'Ladies ring',
+        description: 'Beautiful rings designed for women',
+        imageUrl: '/images/categories/ladies-rings.jpg',
       },
     }),
     prisma.category.upsert({
-      where: { name: 'Earrings' },
+      where: { name: 'Mens earrings' },
       update: {},
       create: {
-        name: 'Earrings',
-        description: 'Stunning earrings for any style',
-        imageUrl: '/images/categories/earrings.jpg',
+        name: 'Mens earrings',
+        description: 'Stylish earrings for men',
+        imageUrl: '/images/categories/mens-earrings.jpg',
       },
     }),
     prisma.category.upsert({
-      where: { name: 'Bracelets' },
+      where: { name: 'Mens watches' },
       update: {},
       create: {
-        name: 'Bracelets',
-        description: 'Stylish bracelets and bangles',
-        imageUrl: '/images/categories/bracelets.jpg',
+        name: 'Mens watches',
+        description: 'Luxury timepieces designed for men',
+        imageUrl: '/images/categories/mens-watches.jpg',
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Ladies watches' },
+      update: {},
+      create: {
+        name: 'Ladies watches',
+        description: 'Elegant timepieces designed for women',
+        imageUrl: '/images/categories/ladies-watches.jpg',
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Silver frames' },
+      update: {},
+      create: {
+        name: 'Silver frames',
+        description: 'Beautiful silver frames for eyeglasses',
+        imageUrl: '/images/categories/silver-frames.jpg',
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Pendants' },
+      update: {},
+      create: {
+        name: 'Pendants',
+        description: 'Precious and elegant pendant pieces',
+        imageUrl: '/images/categories/pendants.jpg',
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Ladies earrings' },
+      update: {},
+      create: {
+        name: 'Ladies earrings',
+        description: 'Stunning earrings to complete your look',
+        imageUrl: '/images/categories/ladies-earrings.jpg',
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Ladies bracelet' },
+      update: {},
+      create: {
+        name: 'Ladies bracelet',
+        description: 'Beautiful bracelets and bangles for women',
+        imageUrl: '/images/categories/ladies-bracelets.jpg',
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Gents bracelet' },
+      update: {},
+      create: {
+        name: 'Gents bracelet',
+        description: 'Stylish bracelets designed for men',
+        imageUrl: '/images/categories/gents-bracelets.jpg',
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Pendant sets' },
+      update: {},
+      create: {
+        name: 'Pendant sets',
+        description: 'Complete pendant sets with matching accessories',
+        imageUrl: '/images/categories/pendant-sets.jpg',
+      },
+    }),
+    prisma.category.upsert({
+      where: { name: 'Anklets' },
+      update: {},
+      create: {
+        name: 'Anklets',
+        description: 'Elegant anklets to adorn your feet',
+        imageUrl: '/images/categories/anklets.jpg',
       },
     }),
   ]);
@@ -90,7 +162,7 @@ async function main() {
       // cost: 1500.00,
       // sku:'DSR-001',
       stock: 15,
-      categoryId: categories[0].id, // Rings
+      categoryId: categories[1].id, // Ladies ring
       weight: 3.5,
       size: '6',
       certification: 'GIA',
@@ -105,7 +177,7 @@ async function main() {
       // cost: 950.00,
       // sku:'GTB-002',
       stock: 8,
-      categoryId: categories[3].id, // Bracelets
+      categoryId: categories[8].id, // Ladies bracelet
       weight: 12.3,
       size: '7 inches',
       certification: 'GIA',
@@ -119,7 +191,7 @@ async function main() {
       // cost: 150.00,
       // sku:'PDE-003',
       stock: 25,
-      categoryId: categories[2].id, // Earrings
+      categoryId: categories[7].id, // Ladies earrings
       weight: 4.2,
       size: '1.5 inches',
       // status: 'active',
@@ -132,7 +204,7 @@ async function main() {
       // cost: 450.00,
       // sku:'RHP-004',
       stock: 12,
-      categoryId: categories[1].id, // Necklaces
+      categoryId: categories[6].id, // Pendants
       weight: 6.8,
       size: '18 inches',
       // status: 'active',
@@ -145,7 +217,7 @@ async function main() {
       // cost: 1750.00,
       // sku:'ECR-005',
       stock: 6,
-      categoryId: categories[0].id, // Rings
+      categoryId: categories[1].id, // Ladies ring
       weight: 8.1,
       size: '7',
       // status: 'active',
@@ -158,7 +230,7 @@ async function main() {
       // cost: 75.00,
       // sku:'SCB-006',
       stock: 30,
-      categoryId: categories[3].id, // Bracelets
+      categoryId: categories[8].id, // Ladies bracelet
       weight: 8.5,
       size: '8 inches',
       // status: 'active',

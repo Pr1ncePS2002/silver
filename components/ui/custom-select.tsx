@@ -40,20 +40,33 @@ export default function CustomSelect({
       }
     }
 
-    const handleScroll = () => {
+    const handleScroll = (event: Event) => {
+      // Don't close if scrolling inside the dropdown
+      const target = event.target as Node
+      if (dropdownRef.current && dropdownRef.current.contains(target)) {
+        return
+      }
+      // Only close if scrolling outside the dropdown (page scroll)
       setIsOpen(false)
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    window.addEventListener('scroll', handleScroll, true)
-    window.addEventListener('resize', handleScroll)
+    const handleResize = () => {
+      setIsOpen(false)
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      // Use capture phase to catch scroll events before they bubble
+      window.addEventListener('scroll', handleScroll, true)
+      window.addEventListener('resize', handleResize)
+    }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
       window.removeEventListener('scroll', handleScroll, true)
-      window.removeEventListener('resize', handleScroll)
+      window.removeEventListener('resize', handleResize)
     }
-  }, [])
+  }, [isOpen])
 
   useEffect(() => {
     if (isOpen && selectRef.current && dropdownRef.current) {
@@ -112,6 +125,14 @@ export default function CustomSelect({
             maxWidth: '100vw',
             left: 0,
             right: 0
+          }}
+          onWheel={(e) => {
+            // Prevent scroll events from bubbling to window
+            e.stopPropagation()
+          }}
+          onTouchMove={(e) => {
+            // Prevent touch scroll events from bubbling to window
+            e.stopPropagation()
           }}
         >
           {options.map((option) => (

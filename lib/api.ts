@@ -139,6 +139,19 @@ class ApiClient {
     return this.request<any>(`/api/orders/${id}`);
   }
 
+  async trackOrder(orderNumber: string, contact: string) {
+    const searchParams = new URLSearchParams({
+      orderNumber,
+      contact,
+    });
+    return this.request<any>(`/api/track?${searchParams.toString()}`);
+  }
+
+  async getOrdersByContact(contact: string) {
+    const searchParams = new URLSearchParams({ contact });
+    return this.request<{orders: any[]}>(`/api/track/orders?${searchParams.toString()}`);
+  }
+
   async createOrder(orderData: any) {
     return this.request<any>('/api/orders', {
       method: 'POST',
@@ -185,7 +198,7 @@ class ApiClient {
   async mergeCart(guestCart: any[]) {
     return this.request<any>('/api/cart/merge', {
       method: 'POST',
-      body: JSON.stringify({ items: guestCart }),
+      body: JSON.stringify({ guestCart }),
     });
   }
 
@@ -449,6 +462,8 @@ export const api = {
   orders: {
     getAll: (params?: any) => apiClient.getOrders(params),
     getById: (id: string) => apiClient.getOrder(id),
+    trackOrder: (orderNumber: string, contact: string) => apiClient.trackOrder(orderNumber, contact),
+    getByContact: (contact: string) => apiClient.getOrdersByContact(contact),
     create: (orderData: any) => apiClient.createOrder(orderData),
     update: (id: string | number, data: any) => apiClient.updateOrder(id, data),
     refund: (id: string | number) => apiClient.refundOrder(id),

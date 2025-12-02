@@ -20,7 +20,6 @@ interface ProductFormData {
   price: string
   stock: string
   categoryId: string
-  weight: string
   size: string
   images: UploadedImage[]
 }
@@ -37,7 +36,6 @@ export default function EditProductPage() {
     price: "",
     stock: "",
     categoryId: "",
-    weight: "",
     size: "",
     images: []
   })
@@ -86,7 +84,6 @@ export default function EditProductPage() {
           price: productData.price?.toString() || "",
           stock: productData.stock?.toString() || "",
           categoryId: productData.category?.id?.toString() || "",
-          weight: productData.weight?.toString() || "",
           size: productData.size || "",
           images: productData.images?.map((img: any, index: number) => ({
             url: img.url,
@@ -221,7 +218,6 @@ export default function EditProductPage() {
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock),
         categoryId: parseInt(formData.categoryId),
-        weight: formData.weight ? parseFloat(formData.weight) : null,
         size: formData.size.trim() || null,
         images: imageData
       }
@@ -344,9 +340,9 @@ export default function EditProductPage() {
                 />
               </div>
             </div>
-            {/* Pricing & Stock */}
+            {/* Pricing, Stock & Size */}
             <div className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label htmlFor="price">Price *</Label>
                   <Input
@@ -372,12 +368,6 @@ export default function EditProductPage() {
                     className="focus:ring-primary focus:border-primary"
                   />
                 </div>
-              </div>
-            </div>
-
-            {/* Product Details */}
-            <div className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="size">Size *</Label>
                   <Input
@@ -385,19 +375,6 @@ export default function EditProductPage() {
                     value={formData.size}
                     onChange={(e) => handleInputChange("size", e.target.value)}
                     placeholder="e.g., Ring size 7, 18 inches chain"
-                    className="focus:ring-primary focus:border-primary"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="weight">Weight (grams)</Label>
-                  <Input
-                    id="weight"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    value={formData.weight}
-                    onChange={(e) => handleInputChange("weight", e.target.value)}
-                    placeholder="0.0"
                     className="focus:ring-primary focus:border-primary"
                   />
                 </div>

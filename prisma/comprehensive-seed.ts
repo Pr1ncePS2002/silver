@@ -52,6 +52,50 @@ const jewelryNames = {
     'Herringbone Bracelet', 'Omega Chain Bracelet', 'Cable Chain Bracelet',
     'Wheat Chain Bracelet', 'Popcorn Chain Bracelet', 'Singapore Chain Bracelet',
     'Anchor Chain Bracelet', 'Mariner Link Bracelet'
+  ],
+  watches: [
+    'Classic Silver Watch', 'Luxury Chronograph Watch', 'Elegant Dress Watch',
+    'Modern Sport Watch', 'Vintage Style Watch', 'Minimalist Watch',
+    'Diamond Bezel Watch', 'Rose Gold Watch', 'White Gold Watch',
+    'Leather Strap Watch', 'Metal Band Watch', 'Ceramic Watch',
+    'Skeleton Dial Watch', 'Automatic Watch', 'Quartz Watch',
+    'Diving Watch', 'Pilot Watch', 'Military Style Watch',
+    'Luxury Swiss Watch', 'Designer Watch', 'Smart Watch'
+  ],
+  frames: [
+    'Classic Silver Eyeglass Frame', 'Modern Round Frame', 'Vintage Cat-Eye Frame',
+    'Rectangular Silver Frame', 'Aviator Style Frame', 'Browline Frame',
+    'Oval Silver Frame', 'Geometric Frame', 'Rimless Frame',
+    'Half-Rim Frame', 'Full-Rim Silver Frame', 'Tortoise Shell Frame',
+    'Wireframe Design', 'Designer Silver Frame', 'Lightweight Frame',
+    'Durable Metal Frame', 'Fashion Forward Frame', 'Professional Frame',
+    'Trendy Oversized Frame', 'Classic Wayfarer Frame', 'Sporty Frame'
+  ],
+  pendants: [
+    'Diamond Pendant', 'Heart Shaped Pendant', 'Cross Pendant',
+    'Star Pendant', 'Moon Pendant', 'Tree of Life Pendant',
+    'Infinity Symbol Pendant', 'Initial Pendant', 'Gemstone Pendant',
+    'Pearl Pendant', 'Vintage Locket Pendant', 'Geometric Pendant',
+    'Flower Pendant', 'Butterfly Pendant', 'Angel Pendant',
+    'Birds Pendant', 'Ocean Wave Pendant', 'Mandala Pendant',
+    'Om Symbol Pendant', 'Custom Engraved Pendant', 'Statement Pendant'
+  ],
+  pendantSets: [
+    'Diamond Pendant Set with Chain', 'Pearl Pendant Set', 'Gemstone Pendant Set',
+    'Heart Pendant Set with Earrings', 'Complete Pendant Set with Bracelet',
+    'Wedding Pendant Set', 'Festival Pendant Set', 'Modern Pendant Set',
+    'Vintage Style Pendant Set', 'Luxury Pendant Set Collection',
+    'Matching Pendant and Ring Set', 'Family Pendant Set', 'Designer Pendant Set'
+  ],
+  anklets: [
+    'Delicate Chain Anklet', 'Charm Anklet', 'Beaded Anklet',
+    'Diamond Anklet', 'Pearl Strand Anklet', 'Gold Chain Anklet',
+    'Silver Chain Anklet', 'Gemstone Anklet', 'Turquoise Anklet',
+    'Shell Anklet', 'Hemp Anklet', 'Leather Anklet',
+    'Adjustable Anklet', 'Tennis Anklet', 'Infinity Symbol Anklet',
+    'Butterfly Anklet', 'Star Anklet', 'Moon Anklet',
+    'Floral Anklet', 'Geometric Anklet', 'Boho Style Anklet',
+    'Minimalist Anklet', 'Statement Anklet', 'Stackable Anklet'
   ]
 };
 
@@ -61,7 +105,12 @@ const sizes = {
   rings: ['4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8', '8.5', '9', '9.5', '10'],
   necklaces: ['16 inches', '18 inches', '20 inches', '22 inches', '24 inches', '26 inches', '28 inches', '30 inches'],
   earrings: ['0.5 inches', '1 inch', '1.5 inches', '2 inches', '2.5 inches', '3 inches'],
-  bracelets: ['6.5 inches', '7 inches', '7.5 inches', '8 inches', '8.5 inches', '9 inches']
+  bracelets: ['6.5 inches', '7 inches', '7.5 inches', '8 inches', '8.5 inches', '9 inches'],
+  watches: ['38mm', '40mm', '42mm', '44mm', '46mm', '36mm', '34mm', '41mm', '39mm', '43mm'],
+  frames: ['Small', 'Medium', 'Large', 'Extra Large', '54mm', '56mm', '58mm', '60mm', '52mm', '50mm'],
+  pendants: ['Small', 'Medium', 'Large', '0.5 inch', '0.75 inch', '1 inch', '1.5 inches', '2 inches'],
+  pendantSets: ['Small Set', 'Medium Set', 'Large Set', 'Standard Set', 'Premium Set', 'Deluxe Set'],
+  anklets: ['8 inches', '9 inches', '10 inches', '11 inches', '12 inches', 'Adjustable', 'One Size']
 };
 
 // User data
@@ -162,34 +211,64 @@ async function main() {
   console.log('📂 Creating categories...');
   const categoryData = [
     {
-      name: 'Rings',
-      description: 'Beautiful engagement rings for your special moment',
-      imageUrl: '/images/categories/engagement-rings.jpg'
+      name: 'Mens ring',
+      description: 'Elegant rings designed for men',
+      imageUrl: '/images/categories/mens-rings.jpg'
     },
     {
-      name: 'Necklaces',
-      description: 'Elegant necklaces and pendants for every occasion',
-      imageUrl: '/images/categories/necklaces.jpg'
+      name: 'Ladies ring',
+      description: 'Beautiful rings designed for women',
+      imageUrl: '/images/categories/ladies-rings.jpg'
     },
     {
-      name: 'Earrings',
-      description: 'Stunning earrings to complete your look',
-      imageUrl: '/images/categories/earrings.jpg'
+      name: 'Mens earrings',
+      description: 'Stylish earrings for men',
+      imageUrl: '/images/categories/mens-earrings.jpg'
     },
     {
-      name: 'Bracelets',
-      description: 'Beautiful bracelets and bangles',
-      imageUrl: '/images/categories/bracelets.jpg'
+      name: 'Mens watches',
+      description: 'Luxury timepieces designed for men',
+      imageUrl: '/images/categories/mens-watches.jpg'
     },
     {
-      name: 'Watches',
-      description: 'Luxury timepieces for discerning tastes',
-      imageUrl: '/images/categories/watches.jpg'
+      name: 'Ladies watches',
+      description: 'Elegant timepieces designed for women',
+      imageUrl: '/images/categories/ladies-watches.jpg'
+    },
+    {
+      name: 'Silver frames',
+      description: 'Beautiful silver frames for eyeglasses',
+      imageUrl: '/images/categories/silver-frames.jpg'
     },
     {
       name: 'Pendants',
-      description: 'Precious and semi-precious gemstone pieces',
-      imageUrl: '/images/categories/gemstones.jpg'
+      description: 'Precious and elegant pendant pieces',
+      imageUrl: '/images/categories/pendants.jpg'
+    },
+    {
+      name: 'Ladies earrings',
+      description: 'Stunning earrings to complete your look',
+      imageUrl: '/images/categories/ladies-earrings.jpg'
+    },
+    {
+      name: 'Ladies bracelet',
+      description: 'Beautiful bracelets and bangles for women',
+      imageUrl: '/images/categories/ladies-bracelets.jpg'
+    },
+    {
+      name: 'Gents bracelet',
+      description: 'Stylish bracelets designed for men',
+      imageUrl: '/images/categories/gents-bracelets.jpg'
+    },
+    {
+      name: 'Pendant sets',
+      description: 'Complete pendant sets with matching accessories',
+      imageUrl: '/images/categories/pendant-sets.jpg'
+    },
+    {
+      name: 'Anklets',
+      description: 'Elegant anklets to adorn your feet',
+      imageUrl: '/images/categories/anklets.jpg'
     },
   ];
 
@@ -261,6 +340,21 @@ async function main() {
     } else if (category.name.toLowerCase().includes('bracelet')) {
       productNames = jewelryNames.bracelets;
       productSizes = sizes.bracelets;
+    } else if (category.name.toLowerCase().includes('watch')) {
+      productNames = jewelryNames.watches;
+      productSizes = sizes.watches;
+    } else if (category.name.toLowerCase().includes('frame')) {
+      productNames = jewelryNames.frames;
+      productSizes = sizes.frames;
+    } else if (category.name.toLowerCase().includes('pendant set')) {
+      productNames = jewelryNames.pendantSets;
+      productSizes = sizes.pendantSets;
+    } else if (category.name.toLowerCase().includes('pendant') && !category.name.toLowerCase().includes('set')) {
+      productNames = jewelryNames.pendants;
+      productSizes = sizes.pendants;
+    } else if (category.name.toLowerCase().includes('anklet')) {
+      productNames = jewelryNames.anklets;
+      productSizes = sizes.anklets;
     } else {
       // For other categories, use a mix
       productNames = [...jewelryNames.rings, ...jewelryNames.necklaces].slice(0, 15);

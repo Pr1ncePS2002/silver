@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Filter, Grid, List, Loader2 } from "lucide-react"
 import ProductCard from "@/components/ProductCard"
 import ProductCardSkeleton from "@/components/ProductCardSkeleton"
@@ -12,6 +12,7 @@ import { useCategoryStats } from "@/hooks/useCategoryStats"
 import type { Product } from "@/contexts/CartContext"
 
 export default function ShopContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const categoryIdFromUrl = searchParams.get("category")
   const searchFromUrl = searchParams.get("search") || ""
@@ -37,8 +38,8 @@ export default function ShopContent() {
     return undefined
   }, [categoryIdFromUrl, selectedCategory, categories])
   
-  // Use search from URL or state
-  const activeSearch = searchFromUrl || search
+  // Use search from state (which syncs with URL)
+  const activeSearch = search
   
   const { products, pagination, loading, error, refetch } = useProducts({
     page: currentPage,
@@ -49,7 +50,7 @@ export default function ShopContent() {
     sortOrder: sortBy === "price-high" ? "desc" : "asc",
   })
 
-  // Set selected category and search from URL parameters on mount
+  // Set selected category and search from URL parameters
   useEffect(() => {
     if (categoryIdFromUrl && categories && categories.length > 0) {
       const categoryIdNum = parseInt(categoryIdFromUrl)
@@ -60,9 +61,8 @@ export default function ShopContent() {
         }
       }
     }
-    if (searchFromUrl) {
-      setSearch(searchFromUrl)
-    }
+    // Always sync search state with URL
+    setSearch(searchFromUrl)
   }, [categoryIdFromUrl, categories, searchFromUrl])
 
   // Convert API products to CartContext Product format
@@ -150,7 +150,18 @@ export default function ShopContent() {
               type="text"
               placeholder="Search for jewelry..."
               value={activeSearch}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                const newValue = e.target.value
+                setSearch(newValue)
+                // Update URL when search changes
+                const params = new URLSearchParams(searchParams.toString())
+                if (newValue.trim()) {
+                  params.set("search", newValue.trim())
+                } else {
+                  params.delete("search")
+                }
+                router.push(`/shop?${params.toString()}`)
+              }}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
@@ -241,7 +252,18 @@ export default function ShopContent() {
               type="text"
               placeholder="Search for jewelry..."
               value={activeSearch}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                const newValue = e.target.value
+                setSearch(newValue)
+                // Update URL when search changes
+                const params = new URLSearchParams(searchParams.toString())
+                if (newValue.trim()) {
+                  params.set("search", newValue.trim())
+                } else {
+                  params.delete("search")
+                }
+                router.push(`/shop?${params.toString()}`)
+              }}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>

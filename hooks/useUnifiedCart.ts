@@ -45,17 +45,39 @@ export function useUnifiedCart() {
     const mergeGuestCart = async () => {
       if (isAuthenticated && !hasMerged && guestCart.cart.items.length > 0) {
         try {
+          console.log('🔄 Merging guest cart with authenticated cart...')
           const guestCartData = guestCart.getCartForMerge()
+          console.log('📦 Guest cart items to merge:', guestCartData)
+          
           await authenticatedCart.mergeCart(guestCartData)
-          guestCart.clearCart()
-          setHasMerged(true)
+          
+          // Wait a bit to ensure the cart is fetched after merge
+          // This ensures the authenticated cart has the merged items before we clear guest cart
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          // Refresh the authenticated cart to ensure it's up to date
+          await authenticatedCart.refetch()
+          
+          // Only clear guest cart after we've confirmed the authenticated cart has items
+          const authCart = authenticatedCart.cart
+          if (authCart && authCart.items && authCart.items.length > 0) {
+            console.log('✅ Cart merged successfully, clearing guest cart')
+            guestCart.clearCart()
+            setHasMerged(true)
+          } else {
+            console.warn('⚠️ Merge completed but authenticated cart appears empty, keeping guest cart')
+          }
         } catch (error) {
-          console.error('Error merging guest cart:', error)
+          console.error('❌ Error merging guest cart:', error)
+          // Don't clear guest cart if merge fails
         }
+      } else if (isAuthenticated && !hasMerged && guestCart.cart.items.length === 0) {
+        // No guest cart items to merge, just mark as merged
+        setHasMerged(true)
       }
     }
 
-    if (!authLoading) {
+    if (!authLoading && isAuthenticated) {
       mergeGuestCart()
     }
   }, [isAuthenticated, hasMerged, guestCart, authenticatedCart, authLoading])
@@ -68,20 +90,41 @@ export function useUnifiedCart() {
   }, [isAuthenticated])
 
   // Get current cart (authenticated or guest) - memoized to trigger re-renders
+  // Keep guest cart visible during merge transition to prevent cart from disappearing
   const currentCart = useMemo((): Cart => {
     if (isAuthenticated) {
       const authCart = authenticatedCart.cart
-      if (!authCart || !authCart.items) {
+      const gCart = guestCart.cart
+      const guestItems = Array.isArray(gCart?.items) ? gCart.items : []
+      
+      // If authenticated but cart is empty/null and guest cart still has items (before merge completes)
+      // OR if merge hasn't completed yet, keep showing guest cart
+      if ((!authCart || !authCart.items || authCart.items.length === 0) && guestItems.length > 0 && !hasMerged) {
+        // Show guest cart during merge transition
         return {
-          items: [],
-          total: 0,
-          itemCount: 0,
-          subtotal: 0,
+          items: guestItems,
+          total: gCart?.total || 0,
+          itemCount: gCart?.itemCount || 0,
+          subtotal: gCart?.total || 0,
           tax: 0,
           shipping: 0
         }
       }
-      return authCart
+      
+      // After merge completes or if authenticated cart has items, show authenticated cart
+      if (authCart && authCart.items && authCart.items.length > 0) {
+        return authCart
+      }
+      
+      // Default empty cart
+      return {
+        items: [],
+        total: 0,
+        itemCount: 0,
+        subtotal: 0,
+        tax: 0,
+        shipping: 0
+      }
     } else {
       const gCart = guestCart.cart
       return {
@@ -93,7 +136,7 @@ export function useUnifiedCart() {
         shipping: 0
       }
     }
-  }, [isAuthenticated, authenticatedCart.cart, guestCart.cart])
+  }, [isAuthenticated, authenticatedCart.cart, guestCart.cart, hasMerged])
 
   // Add to cart (works for both guest and authenticated)
   const addToCart = useCallback(async (productId: string, quantity: number = 1) => {

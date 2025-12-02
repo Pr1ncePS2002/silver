@@ -155,9 +155,9 @@ export async function createOrderAction(orderData: any) {
       return sum + (price * item.quantity)
     }, 0)
 
-    // Calculate shipping and tax
+    // Calculate shipping (no tax applied)
     const shippingCost = subtotal > 500 ? 0 : 25
-    const taxAmount = subtotal * 0.08
+    const taxAmount = 0 // No tax
     const totalAmount = subtotal + shippingCost + taxAmount
 
     // Generate order number

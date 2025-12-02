@@ -296,8 +296,8 @@ export async function POST(request: NextRequest) {
     // Calculate shipping (simplified - you can implement more complex logic)
     const shippingCost = subtotal > 100 ? 0 : 10; // Free shipping over ₹100
     
-    // Calculate tax (simplified - you can implement more complex logic)
-    const taxAmount = (subtotal - discountAmount) * 0.08; // 8% tax
+    // No tax applied
+    const taxAmount = 0;
     
     const totalAmount = subtotal + shippingCost + taxAmount - discountAmount;
     

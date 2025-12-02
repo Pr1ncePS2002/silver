@@ -80,12 +80,13 @@ export async function GET(request: NextRequest) {
     // Build where clause
     const where: any = {};
     
-    // Search functionality
+    // Search functionality - search in product fields and category name
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
         { shortDescription: { contains: search, mode: "insensitive" } },
+        { category: { name: { contains: search, mode: "insensitive" } } },
       ];
     }
     

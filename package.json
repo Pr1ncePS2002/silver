@@ -9,6 +9,7 @@
     "start": "next start",
     "db:seed": "tsx prisma/comprehensive-seed.ts",
     "db:seed-original": "node --loader ts-node/esm prisma/seed.ts",
+    "db:update-categories": "tsx prisma/update-categories.ts",
     "db:validate": "node prisma/validate-seed.js",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",

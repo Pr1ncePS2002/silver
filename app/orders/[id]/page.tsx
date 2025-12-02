@@ -164,6 +164,12 @@ export default async function OrderPage({ params }: OrderPageProps) {
                   <span>Shipping</span>
                   <span>{Number(order.shippingCost) > 0 ? formatCurrency(Number(order.shippingCost)) : 'Free'}</span>
                 </div>
+                {Number(order.taxAmount) > 0 && (
+                  <div className="flex justify-between">
+                    <span>Tax</span>
+                    <span>{formatCurrency(Number(order.taxAmount))}</span>
+                  </div>
+                )}
                 {Number(order.discountAmount) > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Discount</span>

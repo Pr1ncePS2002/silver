@@ -1,8 +1,9 @@
+
 "use client";
 
 import Link from "next/link";
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, FormEvent, useEffect } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ShoppingBag, Menu, X, Search, Heart } from "lucide-react";
 import { useUnifiedCart } from "@/hooks/useUnifiedCart";
 import { useUnifiedWishlist } from "@/hooks/useUnifiedWishlist";
@@ -10,15 +11,33 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const { cart } = useUnifiedCart();
   const { isAuthenticated } = useAuth();
   const { count: wishlistCount } = useUnifiedWishlist();
 
-  // Debug: Log cart state changes
-  console.log('Header render - cart items:', cart?.items?.length || 0);
+  // Sync search query with URL params when on shop page
+  useEffect(() => {
+    if (pathname === "/shop") {
+      const searchFromUrl = searchParams.get("search") || "";
+      setSearchQuery(searchFromUrl);
+    } else {
+      setSearchQuery("");
+    }
+  }, [pathname, searchParams]);
+
+  // Fix hydration error by only rendering client-side values after mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Get cart items count safely (only after mount to avoid hydration mismatch)
+  const cartItemsCount = isMounted && cart?.items ? cart.items.length : 0;
 
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -106,7 +125,7 @@ export default function Header() {
               title="Wishlist"
             >
               <Heart className="w-5 h-5" />
-              {wishlistCount > 0 && (
+              {isMounted && wishlistCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce-gentle light-shadow">
                   {wishlistCount}
                 </span>
@@ -119,9 +138,9 @@ export default function Header() {
               title="Shopping Cart"
             >
               <ShoppingBag className="w-5 h-5" />
-              {cart && cart.items && cart.items.length > 0 && (
+              {isMounted && cartItemsCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce-gentle light-shadow">
-                  {cart.items.length}
+                  {cartItemsCount}
                 </span>
               )}
             </Link>

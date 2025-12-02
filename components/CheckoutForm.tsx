@@ -123,69 +123,55 @@ export default function CheckoutForm() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Customer Information */}
-        <div className="space-y-6">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Row 1: Customer Information & Shipping Address - Full Width */}
+        <div className="lg:col-span-2">
           <div className="bg-white rounded-lg p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Customer Information</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Customer Information & Shipping Address</h2>
 
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
-                />
+              {/* Row 1: Full Name and Email */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Enter your full name"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Enter your email address"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  required
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Shipping Address */}
-          <div className="bg-white rounded-lg p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Shipping Address</h2>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
-                <textarea
-                  name="address"
-                  required
-                  rows={3}
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
+              {/* Row 2: Phone Number, City, ZIP Code */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="Enter your phone number"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
+                  />
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">City *</label>
                   <input
@@ -194,10 +180,10 @@ export default function CheckoutForm() {
                     required
                     value={formData.city}
                     onChange={handleInputChange}
+                    placeholder="Enter your city"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">ZIP Code *</label>
                   <input
@@ -206,85 +192,30 @@ export default function CheckoutForm() {
                     required
                     value={formData.zipCode}
                     onChange={handleInputChange}
+                    placeholder="Enter ZIP code"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                   />
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Payment Method */}
-          <div className="bg-white rounded-lg p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Payment Method</h2>
-
-            <div className="space-y-3">
-              {/* Razorpay Option */}
-              <label className={`flex items-start space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                formData.paymentMethod === "razorpay" 
-                  ? "border-purple-500 bg-purple-50" 
-                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-              }`}>
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="razorpay"
-                  checked={formData.paymentMethod === "razorpay"}
+              {/* Row 3: Address */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
+                <textarea
+                  name="address"
+                  required
+                  rows={3}
+                  value={formData.address}
                   onChange={handleInputChange}
-                  className="mt-1 text-purple-600 focus:ring-purple-500"
+                  placeholder="Enter your complete address"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent"
                 />
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <CreditCard className={`w-5 h-5 ${formData.paymentMethod === "razorpay" ? "text-purple-600" : "text-gray-600"}`} />
-                    <span className={`font-semibold ${formData.paymentMethod === "razorpay" ? "text-purple-900" : "text-gray-900"}`}>
-                      Razorpay
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600">Cards, UPI, Wallets & Net Banking</p>
-                </div>
-              </label>
-
-              {/* COD Option */}
-              <label className={`flex items-start space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all relative ${
-                formData.paymentMethod === "cod" 
-                  ? "border-green-500 bg-green-50" 
-                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-              }`}>
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="cod"
-                  checked={formData.paymentMethod === "cod"}
-                  onChange={handleInputChange}
-                  className="mt-1 text-green-600 focus:ring-green-500"
-                />
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-2">
-                      <Truck className={`w-5 h-5 ${formData.paymentMethod === "cod" ? "text-green-600" : "text-gray-600"}`} />
-                      <span className={`font-semibold ${formData.paymentMethod === "cod" ? "text-green-900" : "text-gray-900"}`}>
-                        Cash on Delivery
-                      </span>
-                    </div>
-                    {formData.paymentMethod === "cod" && (
-                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                        Recommended
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600 mb-2">Pay when you receive your order</p>
-                  <div className="flex items-start space-x-2 p-2 bg-white rounded-lg border border-gray-200">
-                    <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                    <div className="text-xs text-gray-600">
-                      <p className="font-medium mb-1">COD Available</p>
-                      <p>Pay cash or card when your order arrives. No online payment required.</p>
-                    </div>
-                  </div>
-                </div>
-              </label>
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Row 2: Order Summary and Payment Method - Side by Side */}
         {/* Order Summary */}
         <div className="bg-white rounded-lg p-6 shadow-sm h-fit">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
@@ -397,6 +328,78 @@ export default function CheckoutForm() {
             </>
           )}
         </div>
+
+        {/* Payment Method */}
+        <div className="bg-white rounded-lg p-6 shadow-sm h-fit">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Payment Method</h2>
+
+          <div className="space-y-3">
+            {/* Razorpay Option */}
+            <label className={`flex items-start space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+              formData.paymentMethod === "razorpay" 
+                ? "border-purple-500 bg-purple-50" 
+                : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+            }`}>
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="razorpay"
+                checked={formData.paymentMethod === "razorpay"}
+                onChange={handleInputChange}
+                className="mt-1 text-purple-600 focus:ring-purple-500"
+              />
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-1">
+                  <CreditCard className={`w-5 h-5 ${formData.paymentMethod === "razorpay" ? "text-purple-600" : "text-gray-600"}`} />
+                  <span className={`font-semibold ${formData.paymentMethod === "razorpay" ? "text-purple-900" : "text-gray-900"}`}>
+                    Razorpay
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600">Cards, UPI, Wallets & Net Banking</p>
+              </div>
+            </label>
+
+            {/* COD Option */}
+            <label className={`flex items-start space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all relative ${
+              formData.paymentMethod === "cod" 
+                ? "border-green-500 bg-green-50" 
+                : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+            }`}>
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="cod"
+                checked={formData.paymentMethod === "cod"}
+                onChange={handleInputChange}
+                className="mt-1 text-green-600 focus:ring-green-500"
+              />
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <Truck className={`w-5 h-5 ${formData.paymentMethod === "cod" ? "text-green-600" : "text-gray-600"}`} />
+                    <span className={`font-semibold ${formData.paymentMethod === "cod" ? "text-green-900" : "text-gray-900"}`}>
+                      Cash on Delivery
+                    </span>
+                  </div>
+                  {formData.paymentMethod === "cod" && (
+                    <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                      Recommended
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-600 mb-2">Pay when you receive your order</p>
+                <div className="flex items-start space-x-2 p-2 bg-white rounded-lg border border-gray-200">
+                  <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <div className="text-xs text-gray-600">
+                    <p className="font-medium mb-1">COD Available</p>
+                    <p>Pay cash or card when your order arrives. No online payment required.</p>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
       </form>
     </div>
   )
