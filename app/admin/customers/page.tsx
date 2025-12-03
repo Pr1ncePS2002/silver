@@ -239,11 +239,37 @@ export default function CustomersPage() {
                                 <Eye className="mr-2 h-4 w-4" />
                                 View Details
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={async () => {
+                                const first = window.prompt('First name', customer.firstName) || customer.firstName
+                                const last = window.prompt('Last name', customer.lastName) || customer.lastName
+                                try {
+                                  const { api } = await import("@/lib/api")
+                                  await api.users.update(customer.id, { firstName: first, lastName: last })
+                                  // Soft refresh: close any dialog and reload current page data by changing page state
+                                  setCurrentPage((p) => p)
+                                  alert('Customer updated')
+                                } catch (e) {
+                                  console.error(e)
+                                  alert('Update failed')
+                                }
+                              }}>
                                 <Edit className="mr-2 h-4 w-4" />
                                 Edit Customer
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={async () => {
+                                const subject = window.prompt('Email subject', 'Hello from Silver Line')
+                                if (!subject) return
+                                const body = window.prompt('Email message (plain text)')
+                                if (!body) return
+                                try {
+                                  const { api } = await import("@/lib/api")
+                                  await api.admin.sendEmail({ to: customer.email, subject, text: body })
+                                  alert('Email sent')
+                                } catch (e) {
+                                  console.error(e)
+                                  alert('Failed to send email')
+                                }
+                              }}>
                                 <Mail className="mr-2 h-4 w-4" />
                                 Send Email
                               </DropdownMenuItem>

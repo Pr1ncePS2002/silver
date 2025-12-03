@@ -13,7 +13,7 @@ Create a file named `.env.local` in your project root with:
 
 ```env
 # Email Configuration
-EMAIL_USER="ac@silverline925.in"
+EMAIL_USER="silver.line9250@gmail.com"
 EMAIL_PASS="your_gmail_app_password_here"
 ```
 
@@ -40,13 +40,13 @@ npm run dev
 
 ### With Email Configuration:
 - ✅ Everything above PLUS
-- ✅ Professional emails sent to ac@silverline925.in
+- ✅ Professional emails sent to silver.line9250@gmail.com
 - ✅ Beautiful HTML email templates
 
 ## Testing
 1. Fill out the contact form
 2. Check your server console for logged data
-3. If email is configured, check ac@silverline925.in inbox
+3. If email is configured, check silver.line9250@gmail.com inbox
 
 ## Troubleshooting
 - **Form still fails?** Check browser console for errors

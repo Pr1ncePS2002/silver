@@ -1,4 +1,4 @@
-import { PrismaClient, DiscountType } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -359,7 +359,7 @@ async function main() {
       code: 'WELCOME15',
       name: 'Welcome 15% Off',
       description: 'Welcome discount for new customers',
-      discountType: DiscountType.PERCENTAGE,
+      discountType: 'PERCENTAGE' as any,
       discountValue: 15.00,
       minOrderValue: 100.00,
       maxDiscount: 300.00,
@@ -373,7 +373,7 @@ async function main() {
       code: 'SUMMER25',
       name: 'Summer Sale 25% Off',
       description: 'Summer sale discount',
-      discountType: DiscountType.PERCENTAGE,
+      discountType: 'PERCENTAGE' as any,
       discountValue: 25.00,
       minOrderValue: 200.00,
       maxDiscount: 500.00,
@@ -387,7 +387,7 @@ async function main() {
       code: 'SAVE50',
       name: '₹50 Off Large Orders',
       description: 'Fixed discount for orders over ₹300',
-      discountType: DiscountType.FIXED_AMOUNT,
+      discountType: 'FIXED_AMOUNT' as any,
       discountValue: 50.00,
       minOrderValue: 300.00,
       usageLimit: 200,
@@ -400,7 +400,7 @@ async function main() {
       code: 'FREESHIP',
       name: 'Free Shipping',
       description: 'Free shipping on any order',
-      discountType: DiscountType.FREE_SHIPPING,
+      discountType: 'FREE_SHIPPING' as any,
       discountValue: 0.00,
       minOrderValue: 0.00,
       usageLimit: 100,

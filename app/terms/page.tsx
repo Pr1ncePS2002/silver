@@ -223,7 +223,7 @@ export default function TermsPage() {
                   <div className="space-y-2 text-gray-700">
                     <p className="flex items-center gap-2">
                       <span className="text-pink-500">📧</span>
-                      <span>Email: ac@silverline925.in</span>
+                      <span>Email: silver.line9250@gmail.com</span>
                     </p>
                     <p className="flex items-center gap-2">
                       <span className="text-pink-500">📱</span>

@@ -146,6 +146,17 @@ class ApiClient {
     });
   }
 
+  async updateOrder(id: string | number, data: any) {
+    return this.request<any>(`/api/orders/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async refundOrder(id: string | number) {
+    return this.request<any>(`/api/orders/${id}/refund`, { method: 'POST' });
+  }
+
   // Cart API
   async getCart() {
     return this.request<any>('/api/cart');
@@ -184,6 +195,12 @@ class ApiClient {
   }
 
   async addToWishlist(productId: string) {
+    return this.request<any>(`/api/wishlist/${productId}`, {
+      method: 'POST',
+    });
+  }
+  
+  async toggleWishlist(productId: string) {
     return this.request<any>(`/api/wishlist/${productId}`, {
       method: 'POST',
     });
@@ -254,6 +271,13 @@ class ApiClient {
 
   async getUserById(id: string) {
     return this.request<any>(`/api/users/${id}`);
+  }
+
+  async updateUserById(id: string | number, data: any) {
+    return this.request<any>(`/api/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
   // Addresses API
@@ -329,6 +353,10 @@ class ApiClient {
     return this.request<any>(`/api/coupons/validate?code=${encodeURIComponent(code)}`);
   }
 
+  async getCouponUsage(id: string | number) {
+    return this.request<any>(`/api/coupons/${id}/usage`);
+  }
+
   // Shipping API
   async getShippingMethods() {
     return this.request<any[]>('/api/shipping/methods');
@@ -379,6 +407,14 @@ class ApiClient {
     });
   }
 
+  async refundPayment(paymentId: number) {
+    return this.request<any>(`/api/payments/${paymentId}/refund`, { method: 'POST' });
+  }
+
+  async getPaymentReceipt(paymentId: number) {
+    return this.request<any>(`/api/payments/${paymentId}/receipt`);
+  }
+
   // Settings API
   async getSettings() {
     return this.request<any>('/api/settings');
@@ -386,6 +422,13 @@ class ApiClient {
 
   async getSetting(key: string) {
     return this.request<any>(`/api/settings/${key}`);
+  }
+
+  async sendAdminEmail(data: { to: string; subject: string; html?: string; text?: string }) {
+    return this.request<any>('/api/admin/send-email', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 }
 
@@ -407,6 +450,8 @@ export const api = {
     getAll: (params?: any) => apiClient.getOrders(params),
     getById: (id: string) => apiClient.getOrder(id),
     create: (orderData: any) => apiClient.createOrder(orderData),
+    update: (id: string | number, data: any) => apiClient.updateOrder(id, data),
+    refund: (id: string | number) => apiClient.refundOrder(id),
   },
   cart: {
     get: () => apiClient.getCart(),
@@ -432,6 +477,7 @@ export const api = {
   users: {
     getAll: (params?: any) => apiClient.getAllUsers(params),
     getById: (id: string) => apiClient.getUserById(id),
+    update: (id: string | number, data: any) => apiClient.updateUserById(id, data),
   },
   addresses: {
     getAll: () => apiClient.getUserAddresses(),
@@ -446,6 +492,7 @@ export const api = {
     update: (id: string, couponData: any) => apiClient.updateCoupon(id, couponData),
     delete: (id: string) => apiClient.deleteCoupon(id),
     validate: (code: string) => apiClient.validateCoupon(code),
+    usage: (id: string | number) => apiClient.getCouponUsage(id),
   },
   shipping: {
     getMethods: () => apiClient.getShippingMethods(),
@@ -455,6 +502,8 @@ export const api = {
     createIntent: (data: any) => apiClient.createPaymentIntent(data),
     getAll: (params?: any) => apiClient.getAllPayments(params),
     update: (paymentId: number, data: any) => apiClient.updatePayment(paymentId, data),
+    refund: (paymentId: number) => apiClient.refundPayment(paymentId),
+    getReceipt: (paymentId: number) => apiClient.getPaymentReceipt(paymentId),
   },
   settings: {
     getAll: () => apiClient.getSettings(),
@@ -462,5 +511,6 @@ export const api = {
   },
   admin: {
     getStats: () => apiClient.getStats(),
+    sendEmail: (data: { to: string; subject: string; html?: string; text?: string }) => apiClient.sendAdminEmail(data),
   },
 };

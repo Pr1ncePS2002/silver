@@ -29,24 +29,26 @@ export async function GET(request: NextRequest) {
                 take: 1,
               },
             },
-            take: 6, // Limit products per category
+            orderBy: { createdAt: "desc" },
+            take: 1, // Get only the latest product for category card
           },
         }),
       },
       orderBy: { name: "asc" },
     });
     
-    const transformedCategories = categories.map(category => ({
+    const transformedCategories = categories.map((category: any) => ({
       id: category.id,
       name: category.name,
       description: category.description,
       imageUrl: category.imageUrl,
       productCount: category._count?.products || 0,
-      products: (category as any).products?.map((product: any) => ({
+      products: category.products?.map((product: any) => ({
         id: product.id,
         name: product.name,
         price: parseFloat(product.price.toString()),
         image: product.images[0]?.url || "/placeholder.jpg",
+        createdAt: product.createdAt,
       })) || [],
     }));
     

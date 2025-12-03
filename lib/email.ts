@@ -5,7 +5,7 @@ const createTransporter = () => {
   return nodemailer.createTransport({
     service: 'gmail', // You can change this to your preferred email service
     auth: {
-      user: process.env.EMAIL_USER || 'ac@silverline925.in',
+      user: process.env.EMAIL_USER || 'silver.line9250@gmail.com',
       pass: process.env.EMAIL_PASS || '', // You'll need to set this in your .env file
     },
   })
@@ -22,8 +22,8 @@ export const sendContactEmail = async (contactData: {
     const transporter = createTransporter()
 
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'ac@silverline925.in',
-      to: 'ac@silverline925.in',
+      from: process.env.EMAIL_USER || 'silver.line9250@gmail.com',
+      to: 'silver.line9250@gmail.com',
       subject: `Contact Form: ${contactData.subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -79,7 +79,7 @@ export const sendOrderConfirmationEmail = async (orderData: any) => {
     const transporter = createTransporter()
 
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'ac@silverline925.in',
+      from: process.env.EMAIL_USER || 'silver.line9250@gmail.com',
       to: orderData.email,
       subject: `Order Confirmation - ${orderData.orderNumber}`,
       html: `

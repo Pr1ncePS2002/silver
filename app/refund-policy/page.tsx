@@ -196,7 +196,7 @@ export default function RefundPolicyPage() {
                   
                   <div className="space-y-4">
                     {[
-                      { step: 1, title: "Contact Us", desc: "Email us at ac@silverline925.in or call +91 9512765399 within 7 days of receiving your order" },
+                      { step: 1, title: "Contact Us", desc: "Email us at silver.line9250@gmail.com or call +91 9512765399 within 7 days of receiving your order" },
                       { step: 2, title: "Provide Details", desc: "Share your order number, reason for return, and photos of the product (if applicable)" },
                       { step: 3, title: "Get Approval", desc: "Wait for our team to review and approve your return request" },
                       { step: 4, title: "Ship the Product", desc: "Pack the item securely in its original packaging and ship it to our address" },
@@ -380,7 +380,7 @@ export default function RefundPolicyPage() {
                   <div className="space-y-2 text-gray-700">
                     <p className="flex items-center gap-2">
                       <span className="text-blue-500">📧</span>
-                      <span>Email: ac@silverline925.in</span>
+                      <span>Email: silver.line9250@gmail.com</span>
                     </p>
                     <p className="flex items-center gap-2">
                       <span className="text-blue-500">📱</span>

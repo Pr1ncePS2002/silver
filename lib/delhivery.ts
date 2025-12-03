@@ -1,19 +1,20 @@
 import axios from 'axios'
-import Razorpay from 'razorpay'
 import crypto from 'crypto'
+import { logger } from '@/lib/logger'
 
 // Delhivery API Configuration
 const DELHIVERY_BASE_URL = process.env.DELHIVERY_BASE_URL || "https://api.delhivery.com";
 const DELHIVERY_API_KEY = process.env.DELHIVERY_API_KEY!
 const DELHIVERY_CLIENT_NAME = process.env.DELHIVERY_CLIENT_NAME || 'ElegantJewelry'
 
-// Delhivery API Endpoints
+// Delhivery API Endpoints (subset + inferred pin-code endpoint)
 const DELHIVERY_ENDPOINTS = {
   CREATE_PACKAGE: '/api/cmu/create.json',
   TRACK_PACKAGE: '/api/v1/packages/json/',
   CANCEL_PACKAGE: '/api/p/edit',
-  GET_SERVICES: '/api/kinko/v1/invoice/services',
-  CREATE_PICKUP: '/api/backend/createpickup',
+  GET_SERVICES: '/api/kinko/v1/invoice/services', // not currently used for serviceability
+  CREATE_WAREHOUSE: '/fm/request/new/',
+  PINCODE_SERVICEABILITY: '/c/api/pin-code', // inferred common endpoint (may vary by account tier)
 }
 
 // Types for Delhivery API
@@ -164,6 +165,7 @@ export interface DelhiveryPickupRequest {
 export interface DelhiveryPickupResponse {
   success: boolean
   warehouseId?: string
+  message?: string
   error?: string
 }
 
@@ -173,10 +175,14 @@ export class DelhiveryService {
   private clientName: string
   private baseURL: string
 
+  // Cache for serviceability lookups to cut down API calls
+  private serviceabilityCache: Map<string, { serviceable: boolean; lastChecked: number }> = new Map()
+
   constructor() {
-    this.apiKey = DELHIVERY_API_KEY
-    this.clientName = DELHIVERY_CLIENT_NAME
-    this.baseURL = DELHIVERY_BASE_URL
+    // Read from process.env directly to support runtime loading (e.g., in test scripts with dotenv)
+    this.apiKey = process.env.DELHIVERY_API_KEY || DELHIVERY_API_KEY
+    this.clientName = process.env.DELHIVERY_CLIENT_NAME || DELHIVERY_CLIENT_NAME
+    this.baseURL = process.env.DELHIVERY_BASE_URL || DELHIVERY_BASE_URL
 
     if (!this.apiKey) {
       throw new Error('Delhivery API key is required')
@@ -188,7 +194,8 @@ export class DelhiveryService {
    */
   async createPickup(pickupData: DelhiveryPickupRequest): Promise<DelhiveryPickupResponse> {
     try {
-      const payload = {
+      // Delhivery warehouse registration requires form data format
+      const formData = new URLSearchParams({
         name: pickupData.name,
         add: pickupData.address,
         city: pickupData.city,
@@ -197,22 +204,30 @@ export class DelhiveryService {
         pin: pickupData.pin,
         phone: pickupData.phone,
         email: pickupData.email || '',
-        type: pickupData.type || 'pickup',
-      }
+        registered_name: pickupData.name, // Required field
+        return_add: pickupData.address,
+        return_city: pickupData.city,
+        return_state: pickupData.state,
+        return_country: pickupData.country,
+        return_pin: pickupData.pin,
+        return_phone: pickupData.phone,
+      })
 
       const response = await this.makeRequest<any>(
-        DELHIVERY_ENDPOINTS.CREATE_PICKUP,
+        DELHIVERY_ENDPOINTS.CREATE_WAREHOUSE,
         'POST',
-        payload
+        formData.toString()
       )
 
-      console.log('Delhivery create pickup response:', response)
+      logger.info('delhivery.createPickup.response', { response })
 
-      // Check if warehouse was created successfully
-      if (response && response.success && response.warehouse_id) {
+      // Delhivery warehouse API returns success in different formats
+      // Check for various success indicators
+      if (response && (response.success === true || response.cash_pickup_approved || response.credit_pickup_approved)) {
         return {
           success: true,
-          warehouseId: response.warehouse_id,
+          warehouseId: response.warehouse_code || response.id || 'registered',
+          message: response.rmk || 'Warehouse registration request submitted. It may require approval.',
         }
       }
 
@@ -226,11 +241,27 @@ export class DelhiveryService {
         success: false,
         error: typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage),
       }
-    } catch (error) {
-      console.error('Error creating Delhivery pickup:', error)
+    } catch (error: any) {
+      logger.error('delhivery.createPickup.error', { error })
+      
+      // Extract meaningful error message from API response
+      const apiErrorData = error.response?.data
+      let errorMessage = error.message
+      
+      if (apiErrorData) {
+        // Handle wallet balance error
+        if (apiErrorData.prepaid && apiErrorData.prepaid.includes('wallet balance')) {
+          errorMessage = `Insufficient wallet balance: ${apiErrorData.prepaid}. Please recharge your Delhivery account.`
+        } else if (typeof apiErrorData === 'string') {
+          errorMessage = apiErrorData
+        } else if (apiErrorData.error || apiErrorData.message) {
+          errorMessage = apiErrorData.error || apiErrorData.message
+        }
+      }
+      
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to create pickup location',
+        error: errorMessage,
       }
     }
   }
@@ -257,8 +288,8 @@ export class DelhiveryService {
       }
 
       if (method === 'POST' && data) {
-        // For CMU create, Delhivery expects urlencoded: format=json&client=<>&data=<json>
-        if (endpoint === DELHIVERY_ENDPOINTS.CREATE_PACKAGE) {
+        // For CMU create and warehouse registration, Delhivery expects urlencoded format
+        if (endpoint === DELHIVERY_ENDPOINTS.CREATE_PACKAGE || endpoint === DELHIVERY_ENDPOINTS.CREATE_WAREHOUSE) {
           config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
         } else {
           config.headers['Content-Type'] = 'application/json'
@@ -269,8 +300,51 @@ export class DelhiveryService {
       const response = await axios(url, config)
       return response.data
     } catch (error: any) {
-      console.error('Delhivery API Error:', error.response?.data || error.message)
-      throw new Error(`Delhivery API Error: ${error.response?.data?.error || error.message}`)
+      logger.error('delhivery.api.error', { endpoint, method, message: error.message, data: error.response?.data })
+      
+      // Extract meaningful error details from response
+      const apiData = error.response?.data
+      let errorMsg = error.message
+      
+      if (apiData) {
+        // Handle wallet balance error specifically
+        if (apiData.prepaid && typeof apiData.prepaid === 'string') {
+          errorMsg = apiData.prepaid
+        } else if (apiData.error) {
+          errorMsg = typeof apiData.error === 'string' ? apiData.error : JSON.stringify(apiData.error)
+        } else if (apiData.message) {
+          errorMsg = apiData.message
+        } else if (typeof apiData === 'string') {
+          errorMsg = apiData
+        }
+      }
+      
+      throw new Error(`Delhivery API Error: ${errorMsg}`)
+    }
+  }
+
+  /**
+   * Check serviceability for a destination PIN code.
+   * Falls back to optimistic true if endpoint not available or errors (to avoid blocking orders).
+   */
+  async checkServiceability(pin: string): Promise<boolean> {
+    const cached = this.serviceabilityCache.get(pin)
+    const now = Date.now()
+    if (cached && (now - cached.lastChecked) < 1000 * 60 * 30) { // 30 min cache
+      return cached.serviceable
+    }
+    try {
+      const url = `${DELHIVERY_ENDPOINTS.PINCODE_SERVICEABILITY}?pin=${encodeURIComponent(pin)}`
+      const response: any = await this.makeRequest<any>(url, 'GET')
+      // Normalization heuristic
+      const serviceable = !!(response?.delivery_code?.length || response?.success || response?.Serviceable || response?.serviceable)
+      this.serviceabilityCache.set(pin, { serviceable, lastChecked: now })
+      return serviceable
+    } catch (e) {
+      logger.warn('delhivery.serviceability.check.failed', { pin, error: (e as Error).message })
+      // Fail-open: assume serviceable, caller can still rely on createShipment serviceable flag
+      this.serviceabilityCache.set(pin, { serviceable: true, lastChecked: now })
+      return true
     }
   }
 
@@ -333,7 +407,7 @@ async createShipment(shipmentData: DelhiveryShipmentRequest): Promise<DelhiveryS
       response?.message ||
       (response?.packages?.[0]?.remarks || 'Delhivery API returned an unknown error')
 
-    console.error('Delhivery create shipment failure:', response)
+    logger.error('delhivery.createShipment.failure', { response })
 
     return {
       success: false,
@@ -341,7 +415,7 @@ async createShipment(shipmentData: DelhiveryShipmentRequest): Promise<DelhiveryS
       error: typeof normalizedError === 'string' ? normalizedError : JSON.stringify(normalizedError),
     }
   } catch (error) {
-    console.error('Error creating Delhivery shipment:', error)
+    logger.error('delhivery.createShipment.error', { error })
     return {
       success: false,
       packages: [],
@@ -349,6 +423,15 @@ async createShipment(shipmentData: DelhiveryShipmentRequest): Promise<DelhiveryS
     }
   }
 }
+
+  /**
+   * Create a return / reverse shipment (RTO or customer return).
+   * Mirrors createShipment but caller must provide proper return fields.
+   */
+  async createReturnShipment(shipmentData: DelhiveryShipmentRequest): Promise<DelhiveryShipmentResponse> {
+    // For now delegate to createShipment; differentiation could include special flags.
+    return this.createShipment(shipmentData)
+  }
 
 
   /**
@@ -421,7 +504,7 @@ async createShipment(shipmentData: DelhiveryShipmentRequest): Promise<DelhiveryS
         }
       }
     } catch (error) {
-      console.error('Error tracking Delhivery shipment:', error)
+      logger.error('delhivery.trackShipment.error', { waybill, error })
       return {
         success: false,
         tracking_data: { shipment_data: [] },
@@ -456,7 +539,7 @@ async createShipment(shipmentData: DelhiveryShipmentRequest): Promise<DelhiveryS
         }
       }
     } catch (error) {
-      console.error('Error cancelling Delhivery shipment:', error)
+      logger.error('delhivery.cancelShipment.error', { waybill, error })
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to cancel shipment',
@@ -496,147 +579,4 @@ export function getEnvPickupAddress(): DelhiveryAddress {
 }
 
 // Razorpay instance
-export const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-})
-
-// Order creation options interface
-export interface RazorpayOrderData {
-  amount: number // amount in smallest currency unit (paise)
-  currency: string
-  receipt: string
-  notes?: Record<string, string>
-}
-
-// Payment verification interface
-export interface RazorpayPaymentVerification {
-  razorpay_order_id: string
-  razorpay_payment_id: string
-  razorpay_signature: string
-}
-
-// Create Razorpay order
-export async function createRazorpayOrder(orderData: RazorpayOrderData): Promise<
-  | { success: true; order: any }
-  | { success: false; error: string }
-> {
-  try {
-    const order = await razorpay.orders.create({
-      amount: orderData.amount,
-      currency: orderData.currency,
-      receipt: orderData.receipt,
-      notes: orderData.notes,
-    })
-
-    return {
-      success: true,
-      order,
-    }
-  } catch (error) {
-    console.error('Error creating Razorpay order:', error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to create payment order',
-    }
-  }
-}
-
-// Verify payment signature
-export function verifyRazorpayPayment(verification: RazorpayPaymentVerification): boolean {
-  try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = verification
-
-    // Create expected signature
-    const body = razorpay_order_id + '|' + razorpay_payment_id
-    const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
-      .update(body.toString())
-      .digest('hex')
-
-    // Compare signatures
-    return crypto.timingSafeEqual(
-      Buffer.from(expectedSignature, 'hex'),
-      Buffer.from(razorpay_signature, 'hex')
-    )
-  } catch (error) {
-    console.error('Error verifying Razorpay payment:', error)
-    return false
-  }
-}
-
-// Verify webhook signature
-export function verifyWebhookSignature(
-  payload: string,
-  signature: string,
-  secret: string = process.env.RAZORPAY_WEBHOOK_SECRET!
-): boolean {
-  try {
-    const expectedSignature = crypto
-      .createHmac('sha256', secret)
-      .update(payload)
-      .digest('hex')
-
-    return crypto.timingSafeEqual(
-      Buffer.from(expectedSignature, 'hex'),
-      Buffer.from(signature, 'hex')
-    )
-  } catch (error) {
-    console.error('Error verifying webhook signature:', error)
-    return false
-  }
-}
-
-// Convert amount to paise (smallest currency unit)
-export function convertToPaise(amount: number): number {
-  return Math.round(amount * 100)
-}
-
-// Convert amount from paise to rupees
-export function convertFromPaise(amount: number): number {
-  return amount / 100
-}
-
-// Generate receipt ID
-export function generateReceiptId(orderNumber?: string): string {
-  const timestamp = Date.now()
-  const random = Math.random().toString(36).substring(2, 8)
-  return orderNumber ? `${orderNumber}_${timestamp}` : `receipt_${timestamp}_${random}`
-}
-
-// Razorpay order status
-export enum RazorpayOrderStatus {
-  CREATED = 'created',
-  AUTHORIZED = 'authorized',
-  CAPTURED = 'captured',
-  REFUNDED = 'refunded',
-  FAILED = 'failed',
-}
-
-// Razorpay payment status
-export enum RazorpayPaymentStatus {
-  CREATED = 'created',
-  AUTHORIZED = 'authorized',
-  CAPTURED = 'captured',
-  REFUNDED = 'refunded',
-  FAILED = 'failed',
-}
-
-// Get payment methods for frontend
-export function getRazorpayConfig() {
-  return {
-    key: process.env.RAZORPAY_KEY_ID!,
-    currency: 'INR',
-    name: 'Elegant Jewelry',
-    description: 'Premium Silver & Gold Collection',
-    image: '/images/logo.png', // Your logo URL
-    theme: {
-      color: '#1f2937', // Your brand color
-    },
-    modal: {
-      ondismiss: () => {
-        console.log('Razorpay modal dismissed')
-      },
-    },
-  }
-}
+// (Razorpay-related code removed; see lib/razorpay.ts for payment functions)

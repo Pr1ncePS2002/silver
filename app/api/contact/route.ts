@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
         // Email content
         const mailOptions = {
           from: process.env.EMAIL_USER,
-          to: 'ac@silverline925.in',
+          to: 'silver.line9250@gmail.com',
           subject: `Contact Form: ${subject}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false, 
-        error: "Failed to process message. Please try again or contact us directly at ac@silverline925.in" 
+        error: "Failed to process message. Please try again or contact us directly at silver.line9250@gmail.com" 
       },
       { status: 500 }
     )

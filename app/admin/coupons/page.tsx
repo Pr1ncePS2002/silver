@@ -25,6 +25,16 @@ export default function CouponsPage() {
   const [message, setMessage] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
+  const [newCoupon, setNewCoupon] = useState({
+    code: "",
+    name: "",
+    discountType: "PERCENTAGE",
+    discountValue: "",
+    minOrderValue: "0",
+    usageLimit: "",
+    expiresAt: "",
+    isActive: true,
+  } as any)
 
   const { coupons, loading, error, refetch, pagination } = useCoupons({ 
     search: searchTerm,
@@ -34,6 +44,33 @@ export default function CouponsPage() {
   });
 
   const filteredCoupons = coupons || [];
+
+  const handleCreateCoupon = async () => {
+    try {
+      setIsLoading(true)
+      const { api } = await import("@/lib/api")
+      const payload: any = {
+        code: newCoupon.code.trim().toUpperCase(),
+        name: newCoupon.name.trim() || newCoupon.code.trim().toUpperCase(),
+        discountType: (newCoupon.discountType || 'PERCENTAGE').toUpperCase(),
+        discountValue: Number(newCoupon.discountValue || 0),
+        minOrderValue: Number(newCoupon.minOrderValue || 0),
+        usageLimit: newCoupon.usageLimit ? Number(newCoupon.usageLimit) : undefined,
+        expiresAt: newCoupon.expiresAt || undefined,
+        isActive: !!newCoupon.isActive,
+      }
+      const res = await api.coupons.create(payload)
+      if ((res as any).error) throw new Error((res as any).error)
+      setIsAddDialogOpen(false)
+      setNewCoupon({ code: "", name: "", discountType: "PERCENTAGE", discountValue: "", minOrderValue: "0", usageLimit: "", expiresAt: "", isActive: true })
+      await refetch()
+    } catch (e) {
+      console.error(e)
+      alert("Failed to create coupon")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const getStatusColor = (coupon: any) => {
     if (!coupon.isActive) {
@@ -143,17 +180,20 @@ export default function CouponsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="coupon-code">Coupon Code</Label>
-                  <Input id="coupon-code" placeholder="Enter coupon code" />
+                  <Input id="coupon-code" placeholder="Enter coupon code" value={newCoupon.code}
+                    onChange={(e) => setNewCoupon((p: any) => ({ ...p, code: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="discount-type">Discount Type</Label>
-                  <Select>
+                  <Select value={newCoupon.discountType}
+                    onValueChange={(v) => setNewCoupon((p: any) => ({ ...p, discountType: v.toUpperCase() }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="percentage">Percentage</SelectItem>
-                      <SelectItem value="fixed">Fixed Amount</SelectItem>
+                      <SelectItem value="PERCENTAGE">Percentage</SelectItem>
+                      <SelectItem value="FIXED_AMOUNT">Fixed Amount</SelectItem>
+                      <SelectItem value="FREE_SHIPPING">Free Shipping</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -161,25 +201,30 @@ export default function CouponsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="discount-value">Discount Value</Label>
-                  <Input id="discount-value" placeholder="Enter value" />
+                  <Input id="discount-value" placeholder="Enter value" value={newCoupon.discountValue}
+                    onChange={(e) => setNewCoupon((p: any) => ({ ...p, discountValue: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="min-order">Minimum Order Amount</Label>
-                  <Input id="min-order" type="number" placeholder="0.00" />
+                  <Input id="min-order" type="number" placeholder="0.00" value={newCoupon.minOrderValue}
+                    onChange={(e) => setNewCoupon((p: any) => ({ ...p, minOrderValue: e.target.value }))} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="usage-limit">Usage Limit</Label>
-                  <Input id="usage-limit" type="number" placeholder="Enter limit" />
+                  <Input id="usage-limit" type="number" placeholder="Enter limit" value={newCoupon.usageLimit}
+                    onChange={(e) => setNewCoupon((p: any) => ({ ...p, usageLimit: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="expiry-date">Expiry Date</Label>
-                  <Input id="expiry-date" type="date" />
+                  <Input id="expiry-date" type="date" value={newCoupon.expiresAt}
+                    onChange={(e) => setNewCoupon((p: any) => ({ ...p, expiresAt: e.target.value }))} />
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <Switch id="active-status" />
+                <Switch id="active-status" checked={!!newCoupon.isActive}
+                  onCheckedChange={(v) => setNewCoupon((p: any) => ({ ...p, isActive: v }))} />
                 <Label htmlFor="active-status">Active</Label>
               </div>
               <div className="flex justify-end space-x-2">
@@ -190,7 +235,7 @@ export default function CouponsPage() {
                 >
                   Cancel
                 </Button>
-                <Button onClick={() => setIsAddDialogOpen(false)} className="hover:bg-primary/90">
+                <Button disabled={isLoading} onClick={handleCreateCoupon} className="hover:bg-primary/90">
                   Create Coupon
                 </Button>
               </div>
@@ -367,15 +412,45 @@ export default function CouponsPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={async () => {
+                                try {
+                                  const { api } = await import("@/lib/api")
+                                  await api.coupons.update(String(coupon.id), { isActive: !coupon.isActive })
+                                  await refetch()
+                                } catch (e) {
+                                  console.error(e)
+                                  alert("Failed to update coupon")
+                                }
+                              }}>
                                 <Edit className="mr-2 h-4 w-4" />
-                                Edit Coupon
+                                {coupon.isActive ? 'Deactivate' : 'Activate'}
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem onClick={async () => {
+                                try {
+                                  const { api } = await import("@/lib/api")
+                                  const res = await api.coupons.usage(coupon.id)
+                                  if ((res as any).error) throw new Error((res as any).error)
+                                  const u = res.data?.usage
+                                  alert(`Usage for ${coupon.code}:\nOrders: ${u.ordersUsing}\nUsed: ${u.usageCount} / ${u.usageLimit ?? '∞'}\nTotal Discount: ${u.totalDiscountGiven}`)
+                                } catch (e) {
+                                  console.error(e)
+                                  alert("Failed to fetch usage")
+                                }
+                              }}>
                                 <Calendar className="mr-2 h-4 w-4" />
                                 View Usage
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-600">
+                              <DropdownMenuItem className="text-red-600" onClick={async () => {
+                                if (!confirm(`Delete coupon ${coupon.code}?`)) return;
+                                try {
+                                  const { api } = await import("@/lib/api")
+                                  await api.coupons.delete(String(coupon.id))
+                                  await refetch()
+                                } catch (e) {
+                                  console.error(e)
+                                  alert("Failed to delete coupon")
+                                }
+                              }}>
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Delete Coupon
                               </DropdownMenuItem>

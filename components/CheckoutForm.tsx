@@ -6,7 +6,7 @@ import { useState } from "react"
 import { useCart } from "@/hooks/useCart"
 import { useAuth } from "@/hooks/useAuth"
 import { createOrderAction } from "@/lib/actions"
-import { CreditCard, Smartphone, Loader2 } from "lucide-react"
+import { CreditCard, Loader2, Wallet, Truck, CheckCircle2, Info } from "lucide-react"
 import { useRouter } from "next/navigation"
 import RazorpayCheckout from './RazorpayCheckout'
 
@@ -218,56 +218,68 @@ export default function CheckoutForm() {
             <h2 className="text-xl font-bold text-gray-900 mb-4">Payment Method</h2>
 
             <div className="space-y-3">
-              <label className="flex items-center space-x-3 p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+              {/* Razorpay Option */}
+              <label className={`flex items-start space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                formData.paymentMethod === "razorpay" 
+                  ? "border-purple-500 bg-purple-50" 
+                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+              }`}>
                 <input
                   type="radio"
                   name="paymentMethod"
                   value="razorpay"
                   checked={formData.paymentMethod === "razorpay"}
                   onChange={handleInputChange}
-                  className="text-gray-900"
+                  className="mt-1 text-purple-600 focus:ring-purple-500"
                 />
-                <CreditCard className="w-5 h-5" />
-                <span>Razorpay (Cards, UPI, Wallets)</span>
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <CreditCard className={`w-5 h-5 ${formData.paymentMethod === "razorpay" ? "text-purple-600" : "text-gray-600"}`} />
+                    <span className={`font-semibold ${formData.paymentMethod === "razorpay" ? "text-purple-900" : "text-gray-900"}`}>
+                      Razorpay
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600">Cards, UPI, Wallets & Net Banking</p>
+                </div>
               </label>
 
-              <label className="flex items-center space-x-3 p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+              {/* COD Option */}
+              <label className={`flex items-start space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all relative ${
+                formData.paymentMethod === "cod" 
+                  ? "border-green-500 bg-green-50" 
+                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+              }`}>
                 <input
                   type="radio"
                   name="paymentMethod"
-                  value="paypal"
-                  checked={formData.paymentMethod === "paypal"}
+                  value="cod"
+                  checked={formData.paymentMethod === "cod"}
                   onChange={handleInputChange}
-                  className="text-gray-900"
+                  className="mt-1 text-green-600 focus:ring-green-500"
                 />
-                <CreditCard className="w-5 h-5" />
-                <span>PayPal</span>
-              </label>
-
-              <label className="flex items-center space-x-3 p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="gpay"
-                  checked={formData.paymentMethod === "gpay"}
-                  onChange={handleInputChange}
-                  className="text-gray-900"
-                />
-                <Smartphone className="w-5 h-5" />
-                <span>Google Pay</span>
-              </label>
-
-              <label className="flex items-center space-x-3 p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  value="whatsapp"
-                  checked={formData.paymentMethod === "whatsapp"}
-                  onChange={handleInputChange}
-                  className="text-gray-900"
-                />
-                <Smartphone className="w-5 h-5" />
-                <span>WhatsApp Pay</span>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <Truck className={`w-5 h-5 ${formData.paymentMethod === "cod" ? "text-green-600" : "text-gray-600"}`} />
+                      <span className={`font-semibold ${formData.paymentMethod === "cod" ? "text-green-900" : "text-gray-900"}`}>
+                        Cash on Delivery
+                      </span>
+                    </div>
+                    {formData.paymentMethod === "cod" && (
+                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                        Recommended
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">Pay when you receive your order</p>
+                  <div className="flex items-start space-x-2 p-2 bg-white rounded-lg border border-gray-200">
+                    <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                    <div className="text-xs text-gray-600">
+                      <p className="font-medium mb-1">COD Available</p>
+                      <p>Pay cash or card when your order arrives. No online payment required.</p>
+                    </div>
+                  </div>
+                </div>
               </label>
             </div>
           </div>
@@ -335,6 +347,36 @@ export default function CheckoutForm() {
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}
                   />
+                </div>
+              ) : orderCreated && formData.paymentMethod === 'cod' ? (
+                <div className="mt-6">
+                  <div className="mb-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl">
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                          <CheckCircle2 className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-green-900 mb-1">Order Placed Successfully!</h3>
+                        <p className="text-sm text-green-700 mb-2">
+                          Your order has been confirmed. You will pay <span className="font-semibold">₹{cart.total?.toFixed(2) || '0.00'}</span> when you receive your order.
+                        </p>
+                        <div className="flex items-center space-x-2 text-xs text-green-600 mt-2">
+                          <Truck className="w-4 h-4" />
+                          <span>We'll notify you once your order is shipped</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handlePaymentSuccess}
+                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg font-semibold flex items-center justify-center space-x-2"
+                  >
+                    <span>View Order Details</span>
+                    <CheckCircle2 className="w-5 h-5" />
+                  </button>
                 </div>
               ) : (
                 <button

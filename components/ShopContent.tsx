@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Filter, Grid, List, Loader2 } from "lucide-react"
 import ProductCard from "@/components/ProductCard"
 import ProductCardSkeleton from "@/components/ProductCardSkeleton"
@@ -11,6 +12,10 @@ import { useCategoryStats } from "@/hooks/useCategoryStats"
 import type { Product } from "@/contexts/CartContext"
 
 export default function ShopContent() {
+  const searchParams = useSearchParams()
+  const categoryIdFromUrl = searchParams.get("category")
+  const searchFromUrl = searchParams.get("search") || ""
+  
   const [search, setSearch] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [sortBy, setSortBy] = useState("featured")
@@ -20,15 +25,45 @@ export default function ShopContent() {
   const { categories } = useCategories()
   const { categoryStats, loading: statsLoading } = useCategoryStats()
   
+  // Get category ID - either from URL or from selected category name
+  const categoryId = useMemo(() => {
+    if (categoryIdFromUrl) {
+      const id = parseInt(categoryIdFromUrl)
+      return isNaN(id) ? undefined : id
+    }
+    if (selectedCategory !== "all" && categories) {
+      return categories.find(cat => cat.name === selectedCategory)?.id
+    }
+    return undefined
+  }, [categoryIdFromUrl, selectedCategory, categories])
+  
+  // Use search from URL or state
+  const activeSearch = searchFromUrl || search
+  
   const { products, pagination, loading, error, refetch } = useProducts({
     page: currentPage,
     limit: 12,
-    search,
-    categoryId: selectedCategory !== "all" && categories ? 
-      categories.find(cat => cat.name === selectedCategory)?.id : undefined,
+    search: activeSearch,
+    categoryId,
     sortBy: sortBy === "featured" ? "createdAt" : "price",
     sortOrder: sortBy === "price-high" ? "desc" : "asc",
   })
+
+  // Set selected category and search from URL parameters on mount
+  useEffect(() => {
+    if (categoryIdFromUrl && categories && categories.length > 0) {
+      const categoryIdNum = parseInt(categoryIdFromUrl)
+      if (!isNaN(categoryIdNum)) {
+        const category = categories.find(cat => cat.id === categoryIdNum)
+        if (category) {
+          setSelectedCategory(category.name)
+        }
+      }
+    }
+    if (searchFromUrl) {
+      setSearch(searchFromUrl)
+    }
+  }, [categoryIdFromUrl, categories, searchFromUrl])
 
   // Convert API products to CartContext Product format
   const convertedProducts: Product[] = useMemo(() => {
@@ -114,7 +149,7 @@ export default function ShopContent() {
             <input
               type="text"
               placeholder="Search for jewelry..."
-              value={search}
+              value={activeSearch}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
@@ -205,7 +240,7 @@ export default function ShopContent() {
             <input
               type="text"
               placeholder="Search for jewelry..."
-              value={search}
+              value={activeSearch}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />

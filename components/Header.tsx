@@ -1,20 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { ShoppingBag, Menu, X, Search, Heart } from "lucide-react";
 import { useUnifiedCart } from "@/hooks/useUnifiedCart";
-import { useWishlist } from "@/hooks/useWishlist";
+import { useUnifiedWishlist } from "@/hooks/useUnifiedWishlist";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Header() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { cart } = useUnifiedCart();
   const { isAuthenticated } = useAuth();
-  const { count: wishlistCount } = useWishlist();
+  const { count: wishlistCount } = useUnifiedWishlist();
 
   // Debug: Log cart state changes
   console.log('Header render - cart items:', cart?.items?.length || 0);
+
+  const handleSearch = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+      setIsSearchOpen(false);
+      setIsMenuOpen(false);
+    }
+  };
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -62,31 +76,42 @@ export default function Header() {
 
           {/* Right side icons */}
           <div className="flex items-center space-x-2">
-            {/* <div className="relative hidden md:block">
+            {/* Desktop Search */}
+            <form onSubmit={handleSearch} className="hidden md:block relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                 <Search className="w-4 h-4" />
               </span>
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 pr-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all text-sm bg-white shadow-sm"
-                style={{ minWidth: '180px' }}
+                style={{ minWidth: '200px', maxWidth: '300px' }}
               />
-            </div> */}
-            {isAuthenticated && (
-              <Link
-                href="/wishlist"
-                className="relative p-2 text-gray-700 hover:text-purple-600 transition-colors hover:bg-purple-50 rounded-full"
-                title="Wishlist"
-              >
-                <Heart className="w-5 h-5" />
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce-gentle light-shadow">
-                    {wishlistCount}
-                  </span>
-                )}
-              </Link>
-            )}
+            </form>
+
+            {/* Mobile Search Icon */}
+            <button
+              className="md:hidden p-2 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-full transition-colors"
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              title="Search"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+
+            <Link
+              href="/wishlist"
+              className="relative p-2 text-gray-700 hover:text-purple-600 transition-colors hover:bg-purple-50 rounded-full"
+              title="Wishlist"
+            >
+              <Heart className="w-5 h-5" />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce-gentle light-shadow">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
 
             <Link
               href="/cart"
@@ -114,6 +139,27 @@ export default function Header() {
             </button>
           </div>
         </div>
+
+        {/* Mobile Search Bar */}
+        {isSearchOpen && (
+          <div className="md:hidden py-4 border-t border-gray-100 animate-slide-up bg-white/95 backdrop-blur-sm">
+            <form onSubmit={handleSearch} className="px-4">
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                  <Search className="w-4 h-4" />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all text-sm bg-white shadow-sm"
+                  autoFocus
+                />
+              </div>
+            </form>
+          </div>
+        )}
 
         {/* Mobile Navigation */}
         {isMenuOpen && (

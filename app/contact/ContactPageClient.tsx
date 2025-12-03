@@ -47,8 +47,8 @@ export default function ContactPageClient() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                  <a href="mailto:ac@silverline925.in" className="text-gray-600 hover:text-gray-900">
-                    ac@silverline925.in
+                  <a href="mailto:silver.line9250@gmail.com" className="text-gray-600 hover:text-gray-900">
+                    silver.line9250@gmail.com
                   </a>
                   <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
                 </div>

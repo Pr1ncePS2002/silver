@@ -1,20 +1,22 @@
 // Test script for Delhivery createPickup functionality
-const { getDelhiveryService, getEnvPickupAddress } = require('./lib/delhivery.ts');
+// Run with: npx tsx test-delhivery-pickup.js
+
+import { getDelhiveryService, getEnvPickupAddress } from './lib/delhivery'
 
 async function testCreatePickup() {
   try {
-    console.log('Testing Delhivery createPickup functionality...');
+    console.log('Testing Delhivery createPickup functionality...')
     
     // Get pickup address from environment
-    const pickupAddress = getEnvPickupAddress();
-    console.log('Pickup address from environment:', pickupAddress);
+    const pickupAddress = getEnvPickupAddress()
+    console.log('Pickup address from environment:', pickupAddress)
     
     // Initialize Delhivery service
-    const delhiveryService = getDelhiveryService();
-    console.log('Delhivery service initialized');
+    const delhiveryService = getDelhiveryService()
+    console.log('Delhivery service initialized')
     
     // Test create pickup
-    console.log('Creating pickup location with Delhivery...');
+    console.log('Creating pickup location with Delhivery...')
     const result = await delhiveryService.createPickup({
       name: pickupAddress.name,
       address: pickupAddress.address,
@@ -25,22 +27,22 @@ async function testCreatePickup() {
       phone: pickupAddress.phone,
       email: pickupAddress.email,
       type: 'pickup',
-    });
+    })
     
-    console.log('Create pickup result:', result);
+    console.log('Create pickup result:', result)
     
     if (result.success) {
-      console.log('✅ SUCCESS: Pickup location created successfully');
-      console.log('Warehouse ID:', result.warehouseId);
+      console.log('✅ SUCCESS: Pickup location created successfully')
+      console.log('Warehouse ID:', result.warehouseId)
     } else {
-      console.log('❌ FAILED: Could not create pickup location');
-      console.log('Error:', result.error);
+      console.log('❌ FAILED: Could not create pickup location')
+      console.log('Error:', result.error)
     }
     
   } catch (error) {
-    console.error('❌ ERROR in test:', error.message);
+    console.error('❌ ERROR in test:', error instanceof Error ? error.message : String(error))
   }
 }
 
 // Run the test
-testCreatePickup();
+testCreatePickup()

@@ -107,49 +107,35 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Products</h1>
-          <p className="text-muted-foreground mt-1">
+      <div className="flex flex-row justify-between items-center gap-3 sm:gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight truncate">Products</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 truncate">
             Manage your jewelry inventory
           </p>
         </div>
         <Button 
           onClick={() => router.push('/admin/products/add')}
-          className="hover:bg-primary/90 shadow-sm"
+          className="hover:bg-primary/90 shadow-sm shrink-0 text-xs sm:text-sm px-2.5 sm:px-4 h-9 sm:h-10"
         >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Product
+          <Plus className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline">Add Product</span>
+          <span className="sm:hidden">Add</span>
         </Button>
       </div>
 
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
+        <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search products by name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-10"
+            className="pl-10 h-10 w-full"
           />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Show:</span>
-          <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
-            <SelectTrigger className="w-20 h-10">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="20">20</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectContent>
-          </Select>
-          <span className="text-sm text-muted-foreground">per page</span>
         </div>
       </div>
 
@@ -157,12 +143,9 @@ export default function ProductsPage() {
       <Card className="shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold">
+            <CardTitle className="text-md font-semibold">
               Products ({pagination?.totalCount || 0})
             </CardTitle>
-            <div className="text-sm text-muted-foreground">
-              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, pagination?.totalCount || 0)} of {pagination?.totalCount || 0} products
-            </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -177,18 +160,18 @@ export default function ProductsPage() {
               <p className="text-sm text-muted-foreground mt-1">{error}</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: 'calc(100vh - 350px)' }}>
               <Table>
-                <TableHeader>
+                <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow className="border-b">
-                    <TableHead className="w-16">Image</TableHead>
-                    <TableHead className="min-w-[200px]">Product</TableHead>
-                    <TableHead className="min-w-[120px]">Category</TableHead>
-                    <TableHead className="text-right min-w-[100px]">Price</TableHead>
-                    <TableHead className="text-center min-w-[80px]">Stock</TableHead>
-                    <TableHead className="text-center min-w-[100px]">Status</TableHead>
-                    <TableHead className="text-center min-w-[100px]">Created</TableHead>
-                    <TableHead className="text-center w-24">Actions</TableHead>
+                    <TableHead className="w-16 bg-background">Image</TableHead>
+                    <TableHead className="min-w-[200px] bg-background">Product</TableHead>
+                    <TableHead className="min-w-[120px] bg-background">Category</TableHead>
+                    <TableHead className="text-right min-w-[100px] bg-background">Price</TableHead>
+                    <TableHead className="text-center min-w-[80px] bg-background">Stock</TableHead>
+                    <TableHead className="text-center min-w-[100px] bg-background">Status</TableHead>
+                    <TableHead className="text-center min-w-[100px] bg-background">Created</TableHead>
+                    <TableHead className="text-center w-24 bg-background">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -209,7 +192,10 @@ export default function ProductsPage() {
                     filteredProducts.map((product) => (
                       <TableRow key={product.id} className="hover:bg-muted/50 transition-colors">
                         <TableCell>
-                          <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted">
+                          <div 
+                            className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted cursor-pointer hover:opacity-80 transition-opacity"
+                            onClick={() => handlePreview(product)}
+                          >
                             <Image
                               src={product.images?.[0]?.url || "/placeholder.svg"}
                               alt={product.name}
@@ -222,11 +208,6 @@ export default function ProductsPage() {
                           <div className="space-y-1">
                             <div className="font-medium text-sm leading-tight">{product.name}</div>
                             <div className="text-xs text-muted-foreground">ID: {product.id}</div>
-                            {product.description && (
-                              <div className="text-xs text-muted-foreground line-clamp-2 max-w-[200px]">
-                                {product.description}
-                              </div>
-                            )}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -242,7 +223,7 @@ export default function ProductsPage() {
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge 
-                            className={`text-xs ${getStatusColor(product.stock)}`}
+                            className={`w-full text-[10px] sm:text-xs whitespace-nowrap px-1 sm:px-2 py-1 flex items-center justify-center ${getStatusColor(product.stock)}`}
                             variant={product.stock > 0 ? "default" : "destructive"}
                           >
                             {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
@@ -376,6 +357,23 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
+
+      {/* Items Per Page - Bottom */}
+      <div className="flex items-center justify-start gap-2">
+        <span className="text-sm text-muted-foreground">Show:</span>
+        <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
+          <SelectTrigger className="w-20 h-10">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="10">10</SelectItem>
+            <SelectItem value="20">20</SelectItem>
+            <SelectItem value="50">50</SelectItem>
+            <SelectItem value="100">100</SelectItem>
+          </SelectContent>
+        </Select>
+        <span className="text-sm text-muted-foreground">per page</span>
+      </div>
 
       {/* Preview Dialog */}
       <Dialog open={!!previewProduct} onOpenChange={() => setPreviewProduct(null)}>

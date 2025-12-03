@@ -1,42 +1,42 @@
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
-import { Shield, Lock, Eye, Database, Cookie, UserCheck, Globe, Settings, Mail } from "lucide-react"
+import { Shield, Lock, Eye, Database, Cookie, UserCheck, Globe, Settings, Mail, Phone } from "lucide-react"
 
-export default function PrivacyPage() {
+export default function PrivacyPage() { 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       
       {/* Hero Section */}
-      <section className="py-16 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      <section className="py-12 sm:py-16 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center animate-slide-up">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-6 light-shadow">
-              <Shield className="w-10 h-10 text-white" />
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 light-shadow">
+              <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </div>
-            <h1 className="font-playfair text-4xl md:text-5xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <h1 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 px-4">Privacy Policy</h1>
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
               Your privacy is important to us. Learn how we protect and handle your information
             </p>
-            <p className="text-sm text-gray-500 mt-4">Last Updated: January 2025</p>
+            <p className="text-xs sm:text-sm text-gray-500 mt-3 sm:mt-4">Last Updated: January 2025</p>
           </div>
         </div>
       </section>
 
       {/* Content Section */}
-      <section className="py-16 bg-white/80">
+      <section className="py-10 sm:py-16 bg-white/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
 
             {/* Introduction Card */}
-            <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8 shadow-md animate-fade-in">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md animate-fade-in">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-3">1. Introduction</h2>
-                  <p className="text-gray-700 leading-relaxed">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">1. Introduction</h2>
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                     At Silver Line, we are committed to protecting your privacy. This Privacy Policy explains how we collect, 
                     use, disclose, and safeguard your information when you visit our website and make purchases.
                   </p>
@@ -45,17 +45,17 @@ export default function PrivacyPage() {
             </div>
 
             {/* Information We Collect Card */}
-            <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-2xl p-8 shadow-md animate-fade-in">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Database className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md animate-fade-in">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Database className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-3">2. Information We Collect</h2>
-                  <p className="text-gray-700 leading-relaxed mb-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">2. Information We Collect</h2>
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3 sm:mb-4">
                     We collect information that you provide directly to us when you:
                   </p>
-                  <ul className="space-y-2 text-gray-700 mb-6">
+                  <ul className="space-y-2 text-sm sm:text-base text-gray-700 mb-4 sm:mb-6">
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500 mt-1">•</span>
                       <span>Create an account or make a purchase</span>
@@ -74,10 +74,10 @@ export default function PrivacyPage() {
                     </li>
                   </ul>
 
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="bg-white/50 rounded-xl p-4">
-                      <h3 className="font-semibold text-gray-900 mb-2">Personal Information:</h3>
-                      <ul className="space-y-1 text-sm text-gray-700">
+                  <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="bg-white/50 rounded-lg sm:rounded-xl p-3 sm:p-4">
+                      <h3 className="font-semibold text-sm sm:text-base text-gray-900 mb-2">Personal Information:</h3>
+                      <ul className="space-y-1 text-xs sm:text-sm text-gray-700">
                         <li className="flex items-start gap-2">
                           <span className="text-pink-500 mt-0.5">→</span>
                           <span>Name and contact information</span>
@@ -97,9 +97,9 @@ export default function PrivacyPage() {
                       </ul>
                     </div>
 
-                    <div className="bg-white/50 rounded-xl p-4">
-                      <h3 className="font-semibold text-gray-900 mb-2">Automatically Collected:</h3>
-                      <ul className="space-y-1 text-sm text-gray-700">
+                    <div className="bg-white/50 rounded-lg sm:rounded-xl p-3 sm:p-4">
+                      <h3 className="font-semibold text-sm sm:text-base text-gray-900 mb-2">Automatically Collected:</h3>
+                      <ul className="space-y-1 text-xs sm:text-sm text-gray-700">
                         <li className="flex items-start gap-2">
                           <span className="text-blue-500 mt-0.5">→</span>
                           <span>IP address and browser type</span>
@@ -124,17 +124,17 @@ export default function PrivacyPage() {
             </div>
 
             {/* How We Use Card */}
-            <div className="bg-gradient-to-br from-pink-50 via-blue-50 to-purple-50 rounded-2xl p-8 shadow-md animate-fade-in">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Settings className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-br from-pink-50 via-blue-50 to-purple-50 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md animate-fade-in">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-400 to-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-3">3. How We Use Your Information</h2>
-                  <p className="text-gray-700 leading-relaxed mb-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">3. How We Use Your Information</h2>
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3 sm:mb-4">
                     We use the information we collect to:
                   </p>
-                  <ul className="space-y-2 text-gray-700">
+                  <ul className="space-y-2 text-sm sm:text-base text-gray-700">
                     <li className="flex items-start gap-2">
                       <span className="text-pink-500 mt-1">•</span>
                       <span>Process and fulfill your orders</span>
@@ -165,17 +165,17 @@ export default function PrivacyPage() {
             </div>
 
             {/* Information Sharing Card */}
-            <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8 shadow-md animate-fade-in">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Globe className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md animate-fade-in">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-3">4. Information Sharing and Disclosure</h2>
-                  <p className="text-gray-700 leading-relaxed mb-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">4. Information Sharing and Disclosure</h2>
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3 sm:mb-4">
                     We do not sell, trade, or rent your personal information to third parties. We may share your information with:
                   </p>
-                  <ul className="space-y-2 text-gray-700">
+                  <ul className="space-y-2 text-sm sm:text-base text-gray-700">
                     <li className="flex items-start gap-2">
                       <span className="text-blue-500 mt-1">•</span>
                       <span><strong>Service Providers:</strong> Payment processors, shipping companies, and other service providers</span>
@@ -194,18 +194,18 @@ export default function PrivacyPage() {
             </div>
 
             {/* Data Security Card */}
-            <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-2xl p-8 shadow-md animate-fade-in">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Lock className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md animate-fade-in">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-3">5. Data Security</h2>
-                  <p className="text-gray-700 leading-relaxed mb-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">5. Data Security</h2>
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3 sm:mb-4">
                     We implement appropriate technical and organizational measures to protect your personal information. 
                     However, no method of transmission over the Internet is 100% secure, and we cannot guarantee absolute security.
                   </p>
-                  <ul className="space-y-2 text-gray-700">
+                  <ul className="space-y-2 text-sm sm:text-base text-gray-700">
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500 mt-1">•</span>
                       <span>SSL encryption for data transmission</span>
@@ -228,14 +228,14 @@ export default function PrivacyPage() {
             </div>
 
             {/* Cookies Card */}
-            <div className="bg-gradient-to-br from-pink-50 via-blue-50 to-purple-50 rounded-2xl p-8 shadow-md animate-fade-in">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Cookie className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-br from-pink-50 via-blue-50 to-purple-50 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md animate-fade-in">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-400 to-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Cookie className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-3">6. Cookies and Tracking Technologies</h2>
-                  <p className="text-gray-700 leading-relaxed">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">6. Cookies and Tracking Technologies</h2>
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                     We use cookies and similar tracking technologies to enhance your browsing experience, analyze site traffic, 
                     and personalize content. You can control cookies through your browser settings.
                   </p>
@@ -244,17 +244,17 @@ export default function PrivacyPage() {
             </div>
 
             {/* Your Rights Card */}
-            <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8 shadow-md animate-fade-in">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center flex-shrink-0">
-                  <UserCheck className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md animate-fade-in">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <UserCheck className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-3">7. Your Rights</h2>
-                  <p className="text-gray-700 leading-relaxed mb-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">7. Your Rights</h2>
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3 sm:mb-4">
                     You have the right to:
                   </p>
-                  <ul className="space-y-2 text-gray-700">
+                  <ul className="space-y-2 text-sm sm:text-base text-gray-700">
                     <li className="flex items-start gap-2">
                       <span className="text-blue-500 mt-1">•</span>
                       <span>Access, update, or delete your personal information</span>
@@ -281,14 +281,14 @@ export default function PrivacyPage() {
             </div>
 
             {/* Children's Privacy Card */}
-            <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-2xl p-8 shadow-md animate-fade-in">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Shield className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md animate-fade-in">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-3">8. Children's Privacy</h2>
-                  <p className="text-gray-700 leading-relaxed">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">8. Children's Privacy</h2>
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                     Our website is not intended for children under 18 years of age. We do not knowingly collect personal 
                     information from children.
                   </p>
@@ -297,14 +297,14 @@ export default function PrivacyPage() {
             </div>
 
             {/* Third-Party Links Card */}
-            <div className="bg-gradient-to-br from-pink-50 via-blue-50 to-purple-50 rounded-2xl p-8 shadow-md animate-fade-in">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Eye className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-br from-pink-50 via-blue-50 to-purple-50 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md animate-fade-in">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-400 to-blue-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-3">9. Third-Party Links</h2>
-                  <p className="text-gray-700 leading-relaxed">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">9. Third-Party Links</h2>
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                     Our website may contain links to third-party websites. We are not responsible for the privacy practices 
                     of these external sites.
                   </p>
@@ -313,14 +313,14 @@ export default function PrivacyPage() {
             </div>
 
             {/* Changes to Policy Card */}
-            <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-2xl p-8 shadow-md animate-fade-in">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Settings className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md animate-fade-in">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-3">10. Changes to Privacy Policy</h2>
-                  <p className="text-gray-700 leading-relaxed">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">10. Changes to Privacy Policy</h2>
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
                     We may update this Privacy Policy from time to time. The updated version will be indicated by an updated 
                     "Last Updated" date and will be effective as soon as it is accessible.
                   </p>
@@ -329,28 +329,28 @@ export default function PrivacyPage() {
             </div>
 
             {/* Contact Card */}
-            <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-2xl p-8 shadow-md animate-fade-in">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Mail className="w-6 h-6 text-white" />
+            <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md animate-fade-in">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-3">11. Contact Us</h2>
-                  <p className="text-gray-700 leading-relaxed mb-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">11. Contact Us</h2>
+                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-3 sm:mb-4">
                     If you have any questions or concerns about this Privacy Policy, please contact us:
                   </p>
-                  <div className="space-y-2 text-gray-700">
-                    <p className="flex items-center gap-2">
-                      <span className="text-purple-500">📧</span>
-                      <span>Email: ac@silverline925.in</span>
+                  <div className="space-y-2 text-sm sm:text-base text-gray-700">
+                    <p className="flex items-start sm:items-center gap-2">
+                      <span className="text-purple-500 text-base sm:text-lg">📧</span>
+                      <a href="mailto:silver.line9250@gmail.com" className="cursor-pointer hover:text-purple-600 break-words transition-colors">Email: silver.line9250@gmail.com</a>
                     </p>
-                    <p className="flex items-center gap-2">
-                      <span className="text-purple-500">📱</span>
-                      <span>Phone: +91 9512765399</span>
+                    <p className="flex items-start sm:items-center gap-2">
+                      <span className="text-purple-500 text-base sm:text-lg">📱</span>
+                      <a href="tel:+919512765399" className="cursor-pointer hover:text-purple-600 transition-colors">Phone: +91 9512765399</a>
                     </p>
-                    <p className="flex items-center gap-2">
-                      <span className="text-purple-500">📍</span>
-                      <span>Address: A-604 Blossom Aura, Nadiad, Gujarat, India</span>
+                    <p className="flex items-start sm:items-center gap-2">
+                      <span className="text-purple-500 text-base sm:text-lg">📍</span>
+                      <a href="https://www.google.com/maps/place/Blossom+Aura/@22.6774876,72.8793417,17z/data=!3m1!4b1!4m6!3m5!1s0x395e5b3c654679bd:0x7fec0936b8b30f97!8m2!3d22.6774876!4d72.8819166!16s%2Fg%2F11j3w77f02?entry=ttu&g_ep=EgoyMDI1MDYyOS4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener noreferrer" className="cursor-pointer hover:text-purple-600 break-words transition-colors">Address: A-604 Blossom Aura, Nadiad, Gujarat, India</a>
                     </p>
                   </div>
                 </div>

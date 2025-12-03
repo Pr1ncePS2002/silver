@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import { getDelhiveryService, DelhiveryShipmentRequest, getEnvPickupAddress } from '@/lib/delhivery'
+import { logger } from '@/lib/logger'
 import { OrderStatus, ShippingStatus } from '@prisma/client'
 
 export interface CreateShipmentData {
@@ -42,7 +43,6 @@ export async function updateOrderStatusFromDelhivery(data: UpdateOrderStatusData
     const shippingStatusMap: Record<string, ShippingStatus> = {
       manifest: 'PENDING',
       in_transit: 'IN_TRANSIT',
-      dispatched: 'SHIPPED',
       picked_up: 'PROCESSING',
       out_for_delivery: 'OUT_FOR_DELIVERY',
       delivered: 'DELIVERED',
@@ -110,37 +110,43 @@ export interface ShipmentResult {
  */
 export async function createDelhiveryShipment(data: CreateShipmentData): Promise<ShipmentResult> {
   try {
-    // Get order details with all necessary information
+    // Load order with related data
     const order = await prisma.order.findUnique({
       where: { id: data.orderId },
-      include: {
-        user: true,
-        orderItems: { include: { product: true } },
-        payments: true,
-      },
+      include: { user: true, orderItems: { include: { product: true } }, payments: true },
     })
+    if (!order) return { success: false, error: 'Order not found' }
 
-    if (!order) {
-      return { success: false, error: 'Order not found' }
+    // Ensure payment completed
+    const successfulPayment = order.payments.find(p => p.status === 'COMPLETED')
+    if (!successfulPayment) return { success: false, error: 'Payment not completed for this order' }
+
+    // Idempotent: reuse existing shipping record
+    const existingShipping = await prisma.shipping.findFirst({ where: { orderId: order.id } })
+    if (existingShipping?.trackingNumber) {
+      logger.info('delhivery.shipment.idempotentReuse', { orderId: order.id, trackingNumber: existingShipping.trackingNumber })
+      return { success: true, trackingNumber: existingShipping.trackingNumber, shipmentId: existingShipping.id.toString(), message: 'Shipment already exists (idempotent reuse)' }
     }
 
-    // Check if payment is successful
-    const successfulPayment = order.payments.find((p) => p.status === 'COMPLETED')
-    if (!successfulPayment) {
-      return { success: false, error: 'Payment not completed for this order' }
-    }
-
-    // Parse shipping address
+    // Parse address
     let shippingAddress: any
     try {
       shippingAddress = typeof order.shippingAddress === 'string' ? JSON.parse(order.shippingAddress) : order.shippingAddress
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Invalid shipping address format' }
     }
 
-    // Prepare shipment data for Delhivery
+    // Serviceability pre-check
+    const delhiveryService = getDelhiveryService()
+    const pin = shippingAddress.postalCode
+    const serviceable = await delhiveryService.checkServiceability(pin)
+    if (!serviceable) {
+      logger.warn('delhivery.serviceability.blocked', { orderId: order.id, pin })
+      return { success: false, error: `Destination PIN ${pin} currently not serviceable.` }
+    }
+
+    // Build shipment request
     const shipmentRequest: DelhiveryShipmentRequest = {
-      // Use env-configured pickup to match a registered ClientWarehouse in Delhivery
       pickup_location: data.pickupAddress || getEnvPickupAddress(),
       shipments: [
         {
@@ -153,10 +159,9 @@ export async function createDelhiveryShipment(data: CreateShipmentData): Promise
           phone: shippingAddress.phone || order.user.phone || '+919999999999',
           email: order.user.email,
           order: order.orderNumber,
-          products_desc: order.orderItems.map((item) => `${item.productName} (${item.quantity})`).join(', '),
+          products_desc: order.orderItems.map(i => `${i.productName} (${i.quantity})`).join(', '),
           weight: calculateTotalWeight(order.orderItems).toString(),
           payment_mode: 'Pre-paid',
-          // Return address (same as pickup address for now)
           return_name: data.pickupAddress?.name || 'Elegant Jewelry Store',
           return_add: data.pickupAddress?.address || '123 Jewelry Street, Commercial Area',
           return_city: data.pickupAddress?.city || 'Mumbai',
@@ -165,12 +170,10 @@ export async function createDelhiveryShipment(data: CreateShipmentData): Promise
           return_pin: data.pickupAddress?.pin || '400001',
           return_phone: data.pickupAddress?.phone || '+919999999999',
           return_email: data.pickupAddress?.email || 'support@elegantjewelry.com',
-        },
+        }
       ],
     }
 
-    // Create shipment with Delhivery
-    const delhiveryService = getDelhiveryService()
     const shipmentResponse = await delhiveryService.createShipment(shipmentRequest)
 
     if (shipmentResponse.success && shipmentResponse.packages.length > 0) {
@@ -209,7 +212,7 @@ export async function createDelhiveryShipment(data: CreateShipmentData): Promise
       return { success: false, error: shipmentResponse.error || 'Failed to create shipment with Delhivery' }
     }
   } catch (error) {
-    console.error('Error creating Delhivery shipment:', error)
+    logger.error('delhivery.shipment.exception', { orderId: data.orderId, error })
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create shipment' }
   }
 }

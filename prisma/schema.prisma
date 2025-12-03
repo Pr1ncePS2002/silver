@@ -28,6 +28,7 @@ model User {
   wishlist  WishlistItem[]
   addresses Address[]
   cart      CartItem[]
+  returnRequests ReturnRequest[]
 }
 
 model Category {
@@ -99,6 +100,7 @@ model Order {
   orderItems OrderItem[]
   payments   Payment[]
   shipping   Shipping?
+  returnRequests ReturnRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -343,4 +345,61 @@ enum ShippingStatus {
   DELIVERED
   FAILED
   RETURNED
+}
+
+// -----------------------------
+// Returns & Refunds Management
+// -----------------------------
+
+enum ReturnStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum ReturnResolutionType {
+  REFUND
+  EXCHANGE
+  STORE_CREDIT
+}
+
+// You may also store a free-text reason (e.g., "Damaged", "Wrong product")
+model ReturnRequest {
+  id              Int                    @id @default(autoincrement())
+
+  // Relations
+  order           Order                  @relation(fields: [orderId], references: [id])
+  orderId         Int
+  user            User?                  @relation(fields: [userId], references: [id])
+  userId          Int?
+
+  // Details
+  reason          String
+  photos          String[]               // Postgres text[] to store image URLs
+  resolutionType  ReturnResolutionType
+  status          ReturnStatus           @default(PENDING)
+  rejectionReason String?
+
+  // Optional operational fields
+  pickupWaybill   String?                // Delhivery waybill for pickup (if any)
+  refundId        String?                // Razorpay refund id (if processed)
+
+  // Logs
+  logs            ReturnLog[]
+
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+}
+
+model ReturnLog {
+  id               Int           @id @default(autoincrement())
+  returnRequest    ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  returnRequestId  Int
+
+  status           ReturnStatus
+  note             String?
+  adminId          Int?          // optional admin who performed the action
+
+  createdAt        DateTime      @default(now())
 }

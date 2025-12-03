@@ -187,3 +187,45 @@ function Cart() {
 6. **Add analytics** to track user interactions
 
 The implementation provides a solid foundation for integrating real API data while maintaining performance and user experience. The modular architecture makes it easy to extend and maintain as your application grows.
+
+---
+
+## ♻️ Returns & Refunds – Implementation Summary
+
+### Added Models (Prisma)
+- `ReturnRequest` with relations to `Order` and `User`, fields: `reason`, `photos[]`, `resolutionType`, `status`, `rejectionReason`, `pickupWaybill`, `refundId`.
+- `ReturnLog` to track status transitions and notes.
+- Enums: `ReturnStatus` (PENDING, APPROVED, REJECTED, COMPLETED), `ReturnResolutionType` (REFUND, EXCHANGE, STORE_CREDIT).
+
+Run migrations and generate types:
+```cmd
+pnpm prisma generate
+pnpm prisma migrate dev -n add_returns
+```
+
+### Pages
+- Customer Policy: `app/return-policy/page.tsx`
+- Start Return: `app/returns/page.tsx` (RHF + Zod + shadcn + image uploader)
+- Admin Dashboard: `app/admin/returns/page.tsx` (table, filter, approve/reject modals)
+
+### API Routes (App Router)
+- `POST /api/returns/create`: validates order, uploads photos via configured storage, saves request, logs, placeholder email.
+- `POST /api/returns/[id]/approve`: admin-only; sets APPROVED, logs, placeholder Delhivery pickup, placeholder Razorpay refund/exchange, store-credit coupon creation.
+- `POST /api/returns/[id]/reject`: admin-only; sets REJECTED with reason and logs.
+- `GET /api/returns`: admin-only listing with status filter + pagination.
+
+### Configuration Notes
+- Storage provider is reused from `lib/storage/providers.ts` (Cloudinary/Vercel Blob/Local supported). Photos are saved under `returns/` folder.
+- Admin auth is enforced via existing NextAuth JWT and middleware (`token.isAdmin`).
+
+### Quick Test Steps
+1. Create or locate an order number.
+2. Open `/returns`, submit a request with reason, resolution, and up to 4 photos.
+3. As admin, open `/admin/returns`, filter by `Pending`, view details, then Approve/Reject.
+
+### Placeholders Included
+- Delhivery pickup trigger (log + best-effort call to `createPickup`).
+- Razorpay refund placeholder (log; wire real payment id to process actual refund).
+- Exchange placeholder (log; wire to order creation flow).
+- Store credit coupon generated directly via Prisma as one-time coupon.
+

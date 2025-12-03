@@ -239,6 +239,21 @@ export async function createOrderAction(orderData: any) {
         where: { userId },
       })
 
+      // Create payment record for COD orders
+      if (orderData.paymentMethod === 'cod') {
+        await tx.payment.create({
+          data: {
+            orderId: newOrder.id,
+            paymentMethod: 'COD',
+            amount: totalAmount,
+            currency: 'INR',
+            status: 'PENDING',
+            gateway: null,
+          },
+        })
+        // For COD, order status should remain PENDING until payment is received
+      }
+
       return newOrder
     })
 
@@ -520,7 +535,7 @@ export async function createContactAction(contactData: {
     // Import the email function
     const { sendContactEmail } = await import('./email')
     
-    // Send email to ac@silverline925.in
+    // Send email to silver.line9250@gmail.com
     const emailResult = await sendContactEmail(contactData)
     
     if (emailResult.success) {

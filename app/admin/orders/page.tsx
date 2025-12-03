@@ -502,20 +502,60 @@ export default function OrdersPage() {
                 <Button variant="outline" onClick={() => setSelectedOrder(null)}>
                   Close
                 </Button>
-                <Button variant="outline">
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    const status = window.prompt(
+                      "Enter new status (pending, confirmed, processing, shipped, delivered, cancelled, refunded):",
+                      (selectedOrder.status || "pending").toLowerCase()
+                    );
+                    if (!status) return;
+                    try {
+                      const allowed = [
+                        "pending",
+                        "confirmed",
+                        "processing",
+                        "shipped",
+                        "delivered",
+                        "cancelled",
+                        "refunded",
+                      ];
+                      if (!allowed.includes(status.toLowerCase())) {
+                        alert("Invalid status");
+                        return;
+                      }
+                      await (await import("@/lib/api")).api.orders.update(selectedOrder.id, {
+                        status: status.toUpperCase(),
+                      });
+                      // Optimistic UI update
+                      setSelectedOrder({ ...selectedOrder, status: status.toUpperCase() });
+                    } catch (e) {
+                      console.error(e);
+                      alert("Failed to update status");
+                    }
+                  }}
+                >
                   <Package className="mr-2 h-4 w-4" />
                   Update Status
                 </Button>
-                {selectedOrder.payment?.status === "paid" && (
-                                  <Button
-                                    variant="outline"
-                                    onClick={() => handleRefund(selectedOrder.id)}
-                                    className="hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200"
-                                  >
-                                    <RefreshCw className="mr-2 h-4 w-4" />
-                                    Issue Refund
-                                  </Button>
-                                )}
+                {selectedOrder.payment?.status === "COMPLETED" && (
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        await (await import("@/lib/api")).api.orders.refund(selectedOrder.id);
+                        alert("Refund issued successfully");
+                      } catch (e) {
+                        console.error(e);
+                        alert("Failed to issue refund");
+                      }
+                    }}
+                    className="hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200"
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Issue Refund
+                  </Button>
+                )}
                 <Button>
                                   <CreditCard className="mr-2 h-4 w-4" />
                                   View Payment Details
