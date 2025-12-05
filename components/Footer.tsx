@@ -32,7 +32,7 @@ export default function Footer() {
                 <Facebook className="w-5 h-5 sm:w-6 sm:h-6" />
               </a>
               <a
-                href="https://www.instagram.com/silver.line925/"
+                href="https://www.instagram.com/silverline925.in/"
                 className="text-gray-400 hover:text-pink-300 transition-colors transform hover:scale-110 duration-200"
                 aria-label="Instagram"
               >
