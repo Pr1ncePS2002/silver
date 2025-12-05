@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShoppingCart, Heart, Share2, Star, Copy, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { type ApiProduct } from "@/types/api";
 import { type ProductWithDetails } from "@/lib/services/product";
@@ -22,6 +22,78 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
   
   const images = product.images || [];
   const maxThumbnails = 4; // Number of thumbnails to show at once
+
+  // Reset selected image when product changes
+  useEffect(() => {
+    if (images.length > 0) {
+      // Find primary image or default to first image
+      const primaryIndex = images.findIndex(img => img.isPrimary);
+      const initialIndex = primaryIndex >= 0 ? primaryIndex : 0;
+      setSelectedImageIndex(initialIndex);
+      setThumbnailStartIndex(0);
+    }
+  }, [product.id, images.length]);
+
+  // Keyboard navigation for images
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (images.length <= 1) return;
+      
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const newIndex = selectedImageIndex > 0 ? selectedImageIndex - 1 : images.length - 1;
+        setSelectedImageIndex(newIndex);
+        if (images.length > maxThumbnails) {
+          setThumbnailStartIndex(prev => ensureSelectedImageVisible(newIndex, prev));
+        }
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        const newIndex = selectedImageIndex < images.length - 1 ? selectedImageIndex + 1 : 0;
+        setSelectedImageIndex(newIndex);
+        if (images.length > maxThumbnails) {
+          setThumbnailStartIndex(prev => ensureSelectedImageVisible(newIndex, prev));
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [selectedImageIndex, images.length, maxThumbnails]);
+
+  // Ensure selected image is visible in thumbnail strip
+  const ensureSelectedImageVisible = (newIndex: number, currentStartIndex: number) => {
+    if (images.length <= maxThumbnails) {
+      // All thumbnails fit, no need to scroll
+      return 0;
+    }
+    
+    // If selected image is before the visible range, scroll to show it
+    if (newIndex < currentStartIndex) {
+      return newIndex;
+    }
+    // If selected image is after the visible range, scroll to show it
+    else if (newIndex >= currentStartIndex + maxThumbnails) {
+      return Math.max(0, newIndex - maxThumbnails + 1);
+    }
+    
+    return currentStartIndex;
+  };
+
+  // Ensure selected image stays visible when it changes
+  useEffect(() => {
+    if (images.length > maxThumbnails) {
+      setThumbnailStartIndex(prev => ensureSelectedImageVisible(selectedImageIndex, prev));
+    }
+  }, [selectedImageIndex, images.length, maxThumbnails]);
+
+  // Handle image selection
+  const handleImageSelect = (index: number) => {
+    setSelectedImageIndex(index);
+    // Immediately update thumbnail position for better UX
+    if (images.length > maxThumbnails) {
+      setThumbnailStartIndex(prev => ensureSelectedImageVisible(index, prev));
+    }
+  };
 
   // Thumbnail navigation functions
   const canScrollLeft = thumbnailStartIndex > 0;
@@ -85,31 +157,22 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         {/* Product Image Gallery */}
         <div className="animate-fade-in">
           {/* Main Image Display */}
-          <div className="aspect-square rounded-lg overflow-hidden bg-gray-200 mb-4 relative group">
-            <Image
-              src={images[selectedImageIndex]?.url || "/placeholder.svg"}
-              alt={images[selectedImageIndex]?.altText || product.name}
-              fill
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-            
-            {/* Rating overlay */}
-            <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center space-x-1">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span className="text-sm font-semibold">
-                {"stats" in product ? product.stats.averageRating : 4.8}
-              </span>
-              <span className="text-gray-500 text-sm">
-                | {("stats" in product ? product.stats.reviewCount : product.reviewCount || 0)}
-              </span>
+          {images.length > 0 ? (
+            <div className="aspect-square rounded-lg overflow-hidden bg-gray-200 mb-4 relative group">
+              <Image
+                src={images[selectedImageIndex]?.url || images[0]?.url || "/placeholder.svg"}
+                alt={images[selectedImageIndex]?.altText || images[0]?.altText || product.name}
+                fill
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                priority={selectedImageIndex === 0}
+              />              
             </div>
-            
-            {/* Action icon overlay */}
-            <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Share2 className="w-5 h-5 text-gray-600" />
+          ) : (
+            <div className="aspect-square rounded-lg overflow-hidden bg-gray-200 mb-4 relative flex items-center justify-center">
+              <span className="text-gray-400">No images available</span>
             </div>
-          </div>
+          )}
 
           {/* Thumbnail Gallery */}
           {images.length > 1 && (
@@ -136,8 +199,8 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                     return (
                       <button
                         key={actualIndex}
-                        onClick={() => setSelectedImageIndex(actualIndex)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${
+                        onClick={() => handleImageSelect(actualIndex)}
+                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 relative ${
                           isSelected
                             ? "border-gray-900 ring-2 ring-gray-900 ring-opacity-20 scale-105"
                             : "border-gray-200 hover:border-gray-400"
