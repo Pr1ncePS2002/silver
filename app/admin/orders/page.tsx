@@ -409,10 +409,6 @@ export default function OrdersPage() {
                                 <Eye className="mr-2 h-4 w-4" />
                                 View Details
                               </DropdownMenuItem>
-                              <DropdownMenuItem>
-                                <Package className="mr-2 h-4 w-4" />
-                                Update Status
-                              </DropdownMenuItem>
                               {order.payment?.status === "paid" && (
                                 <DropdownMenuItem
                                   onClick={() => handleRefund(order.id)}

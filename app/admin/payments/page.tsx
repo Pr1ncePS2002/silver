@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, CreditCard, RefreshCw, Download, ChevronLeft, ChevronRight, MoreHorizontal, Eye, CheckCircle, XCircle, Clock, Loader2 } from "lucide-react"
+import { Search, CreditCard, RefreshCw, Download, ChevronLeft, ChevronRight, MoreHorizontal, Eye, CheckCircle, XCircle, Clock, Loader2, Trash2 } from "lucide-react"
 import { usePayments } from "@/hooks/usePayments"
 
 import { Button } from "@/components/ui/button"
@@ -367,9 +367,29 @@ export default function PaymentsPage() {
                                   Process Refund
                                 </DropdownMenuItem>
                               )}
-                              <DropdownMenuItem>
-                                <CreditCard className="mr-2 h-4 w-4" />
-                                View Transaction
+                              <DropdownMenuItem 
+                                className="text-red-600" 
+                                onClick={async () => {
+                                  if (!confirm(`Are you sure you want to delete payment #${payment.id}? This action cannot be undone.`)) {
+                                    return;
+                                  }
+                                  try {
+                                    const { api } = await import("@/lib/api")
+                                    const res = await api.payments.delete(payment.id)
+                                    if (res.error) {
+                                      alert(`Failed to delete payment: ${res.error}`)
+                                      return
+                                    }
+                                    await refetch()
+                                    alert('Payment deleted successfully')
+                                  } catch (e) {
+                                    console.error(e)
+                                    alert('Failed to delete payment')
+                                  }
+                                }}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Payment
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -564,6 +584,32 @@ export default function PaymentsPage() {
                 >
                   <Download className="mr-2 h-4 w-4" />
                   Export Receipt
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    if (!confirm(`Are you sure you want to delete payment #${selectedPayment.id}? This action cannot be undone.`)) {
+                      return;
+                    }
+                    try {
+                      const { api } = await import("@/lib/api")
+                      const res = await api.payments.delete(selectedPayment.id)
+                      if (res.error) {
+                        alert(`Failed to delete payment: ${res.error}`)
+                        return
+                      }
+                      setSelectedPayment(null)
+                      await refetch()
+                      alert('Payment deleted successfully')
+                    } catch (e) {
+                      console.error(e)
+                      alert('Failed to delete payment')
+                    }
+                  }}
+                  className="hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Payment
                 </Button>
               </div>
             </div>

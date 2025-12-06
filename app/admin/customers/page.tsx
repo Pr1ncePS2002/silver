@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Mail, Phone, Calendar, User, Loader2, ChevronLeft, ChevronRight, MoreHorizontal, Eye, Edit, Shield } from "lucide-react"
+import { Search, Mail, Phone, Calendar, User, Loader2, ChevronLeft, ChevronRight, MoreHorizontal, Eye, Edit, Shield, Trash2 } from "lucide-react"
 import { useCustomers } from "@/hooks/useCustomers"
 
 import { Button } from "@/components/ui/button"
@@ -20,7 +20,7 @@ export default function CustomersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(20)
 
-  const { customers, loading, error, pagination } = useCustomers({ 
+  const { customers, loading, error, pagination, refetch } = useCustomers({ 
     search: searchTerm,
     page: currentPage,
     limit: itemsPerPage,
@@ -273,6 +273,30 @@ export default function CustomersPage() {
                                 <Mail className="mr-2 h-4 w-4" />
                                 Send Email
                               </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-red-600" 
+                                onClick={async () => {
+                                  if (!confirm(`Are you sure you want to delete customer "${customer.firstName} ${customer.lastName}"? This action cannot be undone.`)) {
+                                    return;
+                                  }
+                                  try {
+                                    const { api } = await import("@/lib/api")
+                                    const res = await api.users.delete(customer.id)
+                                    if (res.error) {
+                                      alert(`Failed to delete customer: ${res.error}`)
+                                      return
+                                    }
+                                    await refetch()
+                                    alert('Customer deleted successfully')
+                                  } catch (e) {
+                                    console.error(e)
+                                    alert('Failed to delete customer')
+                                  }
+                                }}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Customer
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -437,6 +461,32 @@ export default function CustomersPage() {
                 <Button>
                   <Mail className="mr-2 h-4 w-4" />
                   Send Email
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    if (!confirm(`Are you sure you want to delete customer "${selectedCustomer.firstName} ${selectedCustomer.lastName}"? This action cannot be undone.`)) {
+                      return;
+                    }
+                    try {
+                      const { api } = await import("@/lib/api")
+                      const res = await api.users.delete(selectedCustomer.id)
+                      if (res.error) {
+                        alert(`Failed to delete customer: ${res.error}`)
+                        return
+                      }
+                      setSelectedCustomer(null)
+                      await refetch()
+                      alert('Customer deleted successfully')
+                    } catch (e) {
+                      console.error(e)
+                      alert('Failed to delete customer')
+                    }
+                  }}
+                  className="hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Customer
                 </Button>
               </div>
             </div>

@@ -294,6 +294,12 @@ class ApiClient {
     });
   }
 
+  async deleteUserById(id: string | number) {
+    return this.request<any>(`/api/users/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Addresses API
   async getUserAddresses() {
     return this.request<any[]>('/api/addresses');
@@ -429,6 +435,10 @@ class ApiClient {
     return this.request<any>(`/api/payments/${paymentId}/receipt`);
   }
 
+  async deletePayment(paymentId: number) {
+    return this.request<any>(`/api/payments/${paymentId}`, { method: 'DELETE' });
+  }
+
   // Settings API
   async getSettings() {
     return this.request<any>('/api/settings');
@@ -494,6 +504,7 @@ export const api = {
     getAll: (params?: any) => apiClient.getAllUsers(params),
     getById: (id: string) => apiClient.getUserById(id),
     update: (id: string | number, data: any) => apiClient.updateUserById(id, data),
+    delete: (id: string | number) => apiClient.deleteUserById(id),
   },
   addresses: {
     getAll: () => apiClient.getUserAddresses(),
@@ -520,6 +531,7 @@ export const api = {
     update: (paymentId: number, data: any) => apiClient.updatePayment(paymentId, data),
     refund: (paymentId: number) => apiClient.refundPayment(paymentId),
     getReceipt: (paymentId: number) => apiClient.getPaymentReceipt(paymentId),
+    delete: (paymentId: number) => apiClient.deletePayment(paymentId),
   },
   settings: {
     getAll: () => apiClient.getSettings(),
