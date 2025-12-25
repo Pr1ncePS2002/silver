@@ -45,7 +45,7 @@ async function checkAdminAuth() {
   try {
     const cookieStore = await cookies();
     const adminToken = cookieStore.get("admin-token")?.value;
-    
+
     if (adminToken) {
       const jwtSecret = process.env.JWT_SECRET || "your-secret-key";
       const decoded = jwt.verify(adminToken, jwtSecret) as any;
@@ -62,12 +62,12 @@ async function checkAdminAuth() {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
+
     // Pagination parameters
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "12");
     const offset = (page - 1) * limit;
-    
+
     // Search and filter parameters
     const search = searchParams.get("search") || "";
     const categoryId = searchParams.get("categoryId");
@@ -76,10 +76,10 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const sortBy = searchParams.get("sortBy") || "createdAt";
     const sortOrder = searchParams.get("sortOrder") || "desc";
-    
+
     // Build where clause
     const where: any = {};
-    
+
     // Search functionality
     if (search) {
       where.OR = [
@@ -88,36 +88,36 @@ export async function GET(request: NextRequest) {
         { shortDescription: { contains: search, mode: "insensitive" } },
       ];
     }
-    
+
     // Category filter
     if (categoryId) {
       where.categoryId = parseInt(categoryId);
     }
-    
+
     // Price range filter
     if (minPrice || maxPrice) {
       where.price = {};
       if (minPrice) where.price.gte = parseFloat(minPrice);
       if (maxPrice) where.price.lte = parseFloat(maxPrice);
     }
-    
+
     // Stock filter (only show products with stock > 0 for non-admin users)
     const isAdmin = await checkAdminAuth();
     if (!isAdmin) {
       where.stock = { gt: 0 };
     }
-    
+
     // Build order by clause - validate sortBy field
     const validSortFields = ['id', 'name', 'price', 'stock', 'createdAt', 'updatedAt'];
     const orderBy: any = {};
-    
+
     if (validSortFields.includes(sortBy)) {
       orderBy[sortBy] = sortOrder;
     } else {
       // Default to createdAt if invalid sort field
       orderBy.createdAt = sortOrder;
     }
-    
+
     // Get products with pagination
     const [products, totalCount] = await Promise.all([
       prisma.product.findMany({
@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
       }),
       prisma.product.count({ where }),
     ]);
-    
+
     // Transform products for response
     const transformedProducts = products.map((product: any) => ({
       id: product.id,
@@ -167,9 +167,9 @@ export async function GET(request: NextRequest) {
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
     }));
-    
+
     const totalPages = Math.ceil(totalCount / limit);
-    
+
     return NextResponse.json({
       products: transformedProducts,
       pagination: {
@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
     console.log("POST /api/products - Starting request");
     const isAdmin = await checkAdminAuth();
     console.log("Admin check result:", isAdmin);
-    
+
     if (!isAdmin) {
       console.log("Unauthorized access attempt");
       return NextResponse.json(
@@ -203,10 +203,10 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-    
+
     const body = await request.json();
     console.log("Received product data:", JSON.stringify(body, null, 2));
-    
+
     let validatedData;
     try {
       validatedData = createProductSchema.parse(body);
@@ -215,31 +215,31 @@ export async function POST(request: NextRequest) {
       console.error("Validation error:", validationError);
       if (validationError instanceof z.ZodError) {
         return NextResponse.json(
-          { 
-            error: "Validation failed", 
-            details: validationError.errors 
+          {
+            error: "Validation failed",
+            details: validationError.errors
           },
           { status: 400 }
         );
       }
       throw validationError;
     }
-    
+
     // Check if product with same name already exists
     const existingProduct = await prisma.product.findFirst({
-      where: { 
+      where: {
         name: validatedData.name,
         categoryId: validatedData.categoryId
       },
     });
-    
+
     if (existingProduct) {
       return NextResponse.json(
         { error: "Product with this name already exists in this category" },
         { status: 400 }
       );
     }
-    
+
     // Create product with images in a transaction
     console.log("Starting database transaction...");
     let product;
@@ -294,16 +294,16 @@ export async function POST(request: NextRequest) {
     } catch (dbError) {
       console.error("Database transaction error:", dbError);
       return NextResponse.json(
-        { 
-          error: "Failed to create product", 
+        {
+          error: "Failed to create product",
           details: dbError instanceof Error ? dbError.message : "Unknown database error"
         },
         { status: 500 }
       );
     }
-    
+
     return NextResponse.json(
-      { 
+      {
         message: "Product created successfully",
         product: {
           id: product?.id,
@@ -321,7 +321,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     console.error("Error creating product:", error);
     return NextResponse.json(
       { error: "Failed to create product" },
