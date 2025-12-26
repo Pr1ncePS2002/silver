@@ -9,7 +9,6 @@ import { Star, Truck, Shield, Headphones } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel"
 import { useState, useEffect } from "react"
-import Image from "next/image"
 
 const metadata = {
   title: "Silver Line - Handcrafted Jewelry for Every Occasion",
@@ -35,27 +34,27 @@ const metadata = {
 
 export default function Home() {
   const router = useRouter()
-  const { products, loading, error } = useProducts({ 
-    page: 1, 
-    limit: 4, 
+  const { products, loading, error } = useProducts({
+    page: 1,
+    limit: 4,
     sortBy: 'createdAt',
     sortOrder: 'desc'
   });
-  
+
   // Fetch 8 most recent products for banner slider
-  const { products: bannerProducts, loading: bannerLoading } = useProducts({ 
-    page: 1, 
-    limit: 8, 
+  const { products: bannerProducts, loading: bannerLoading } = useProducts({
+    page: 1,
+    limit: 8,
     sortBy: 'createdAt',
     sortOrder: 'desc'
   });
-  
+
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [emblaApi, setEmblaApi] = useState<CarouselApi | undefined>(undefined);
   const [categories, setCategories] = useState<any[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categoryCarouselApi, setCategoryCarouselApi] = useState<CarouselApi | undefined>(undefined);
-  
+
   // Fetch categories with latest products
   useEffect(() => {
     const fetchCategories = async () => {
@@ -63,20 +62,20 @@ export default function Home() {
         setCategoriesLoading(true);
         const response = await fetch('/api/categories?includeProducts=true&includeCounts=true');
         const data = await response.json();
-        
+
         // Get first product image for each category (as latest)
         const categoriesWithLatestProduct = data.map((category: any) => {
           const firstProduct = category.products && category.products.length > 0
             ? category.products[0]
             : null;
-          
+
           return {
             ...category,
             latestProductImage: firstProduct?.image || category.imageUrl || "/placeholder.svg",
             latestProductId: firstProduct?.id || null
           };
         }).filter((cat: any) => cat.productCount > 0); // Only show categories with products
-        
+
         setCategories(categoriesWithLatestProduct);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -84,10 +83,10 @@ export default function Home() {
         setCategoriesLoading(false);
       }
     };
-    
+
     fetchCategories();
   }, []);
-  
+
   // Create dynamic slider images from recent products
   const sliderImages = bannerProducts.map(product => {
     const primaryImage = product.images.find(img => img.isPrimary);
@@ -128,7 +127,7 @@ export default function Home() {
               <CarouselContent className="-ml-0">
                 {sliderImages.map((img, i) => (
                   <CarouselItem key={i} className="pl-0 aspect-[4/3] sm:aspect-[3/2] lg:aspect-[32/9] flex items-center justify-center w-full">
-                    <div 
+                    <div
                       className="relative w-full h-full cursor-pointer group touch-pan-y"
                       onClick={() => router.push(`/product/${img.productId}`)}
                     >
@@ -157,7 +156,7 @@ export default function Home() {
               </div>
             </div>
           )}
-          
+
           {/* Dot Indicators: Only show previous, current, and next */}
           {sliderImages.length > 0 && (
             <div className="flex justify-center gap-1.5 sm:gap-2 md:gap-3 mt-2 sm:mt-3 md:mt-4 px-4">
@@ -185,10 +184,10 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8 sm:mb-10">
               <h2 className="font-playfair text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-3 sm:mb-4">
-              Discover Your Style
-            </h2>
+                Discover Your Style
+              </h2>
             </div>
-            
+
             {categoriesLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -209,11 +208,10 @@ export default function Home() {
                             onClick={() => router.push(`/shop?category=${category.id}`)}
                           >
                             <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 light-shadow hover:light-shadow-lg transition-all duration-300 group-hover:scale-105 mb-2">
-                              <Image
+                              <img
                                 src={category.latestProductImage}
                                 alt={category.name}
-                                fill
-                                className="object-cover"
+                                className="absolute inset-0 w-full h-full object-cover"
                               />
                             </div>
                             <h3 className="text-gray-800 font-semibold text-xs text-center group-hover:text-purple-600 transition-colors duration-300">
@@ -231,11 +229,10 @@ export default function Home() {
                             onClick={() => router.push(`/shop?category=${category.id}`)}
                           >
                             <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 light-shadow hover:light-shadow-lg transition-all duration-300 group-hover:scale-105 mb-2">
-                              <Image
+                              <img
                                 src={category.latestProductImage}
                                 alt={category.name}
-                                fill
-                                className="object-cover"
+                                className="absolute inset-0 w-full h-full object-cover"
                               />
                             </div>
                             <h3 className="text-gray-800 font-semibold text-xs text-center group-hover:text-purple-600 transition-colors duration-300">
@@ -251,8 +248,8 @@ export default function Home() {
                 {/* Desktop: Carousel with navigation */}
                 <div className="hidden sm:block">
                   <div className="relative">
-                    <Carousel 
-                      className="w-full" 
+                    <Carousel
+                      className="w-full"
                       setApi={setCategoryCarouselApi}
                       opts={{
                         align: "start",
@@ -261,8 +258,8 @@ export default function Home() {
                     >
                       <CarouselContent className="-ml-2 md:-ml-4">
                         {categories.map((category) => (
-                          <CarouselItem 
-                            key={category.id} 
+                          <CarouselItem
+                            key={category.id}
                             className="pl-2 md:pl-4 basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
                           >
                             <div
@@ -270,11 +267,10 @@ export default function Home() {
                               onClick={() => router.push(`/shop?category=${category.id}`)}
                             >
                               <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 light-shadow hover:light-shadow-lg transition-all duration-300 group-hover:scale-105 mb-2 sm:mb-3">
-                                <Image
+                                <img
                                   src={category.latestProductImage}
                                   alt={category.name}
-                                  fill
-                                  className="object-cover"
+                                  className="absolute inset-0 w-full h-full object-cover"
                                 />
                               </div>
                               <h3 className="text-gray-800 font-semibold text-xs sm:text-sm text-center group-hover:text-purple-600 transition-colors duration-300">
@@ -361,7 +357,7 @@ export default function Home() {
           )}
         </div>
       </section>
- 
+
       {/* Features */}
       <section className="py-10 sm:py-12 md:py-16 bg-white/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-6 lg:px-8">
