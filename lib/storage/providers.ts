@@ -27,7 +27,7 @@ export const storageProviders: Record<string, StorageProvider> = {
       return deleteFromLocal(url)
     }
   },
-  
+
   'vercel-blob': {
     name: 'Vercel Blob',
     upload: async (file: File, folder: string) => {
@@ -37,7 +37,7 @@ export const storageProviders: Record<string, StorageProvider> = {
       return deleteFromVercelBlob(url)
     }
   },
-  
+
   cloudinary: {
     name: 'Cloudinary',
     upload: async (file: File, folder: string) => {
@@ -47,7 +47,7 @@ export const storageProviders: Record<string, StorageProvider> = {
       return deleteFromCloudinary(url)
     }
   },
-  
+
   s3: {
     name: 'AWS S3',
     upload: async (file: File, folder: string) => {
@@ -61,22 +61,22 @@ export const storageProviders: Record<string, StorageProvider> = {
 
 // Get the configured storage provider
 export function getStorageProvider(): StorageProvider {
-  const providerName = process.env.STORAGE_PROVIDER || 'local'
+  const providerName = process.env.STORAGE_PROVIDER || 'vercel-blob'
   const provider = storageProviders[providerName]
-  
+
   if (!provider) {
     console.warn(`Unknown storage provider: ${providerName}. Falling back to local storage.`)
     return storageProviders.local
   }
-  
+
   return provider
 }
 
 // Validate storage provider configuration
 export function validateStorageConfig(): { isValid: boolean; errors: string[] } {
   const errors: string[] = []
-  const provider = process.env.STORAGE_PROVIDER || 'local'
-  
+  const provider = process.env.STORAGE_PROVIDER || 'vercel-blob'
+
   switch (provider) {
     case 'local':
       if (!process.env.UPLOAD_BASE_PATH) {
@@ -86,13 +86,13 @@ export function validateStorageConfig(): { isValid: boolean; errors: string[] } 
         errors.push('UPLOAD_BASE_URL is required for local storage')
       }
       break
-      
+
     case 'vercel-blob':
       if (!process.env.BLOB_READ_WRITE_TOKEN) {
         errors.push('BLOB_READ_WRITE_TOKEN is required for Vercel Blob storage')
       }
       break
-      
+
     case 'cloudinary':
       if (!process.env.CLOUDINARY_CLOUD_NAME) {
         errors.push('CLOUDINARY_CLOUD_NAME is required for Cloudinary storage')
@@ -104,7 +104,7 @@ export function validateStorageConfig(): { isValid: boolean; errors: string[] } 
         errors.push('CLOUDINARY_API_SECRET is required for Cloudinary storage')
       }
       break
-      
+
     case 's3':
       if (!process.env.AWS_ACCESS_KEY_ID) {
         errors.push('AWS_ACCESS_KEY_ID is required for S3 storage')
@@ -119,11 +119,11 @@ export function validateStorageConfig(): { isValid: boolean; errors: string[] } 
         errors.push('AWS_S3_BUCKET is required for S3 storage')
       }
       break
-      
+
     default:
       errors.push(`Unknown storage provider: ${provider}`)
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors
@@ -134,7 +134,7 @@ export function validateStorageConfig(): { isValid: boolean; errors: string[] } 
 export function getStorageInfo() {
   const provider = getStorageProvider()
   const config = validateStorageConfig()
-  
+
   return {
     provider: provider.name,
     isConfigured: config.isValid,
